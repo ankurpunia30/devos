@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { DevOSLogo } from '@/components/DevOSLogo';
 import {
   Terminal,
   Shield,
@@ -38,17 +39,9 @@ export default function HomePage() {
       {/* Modern Marketing Navbar */}
       <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-surface-950/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center shadow-glow-sm">
-              <Terminal className="h-5 w-5 text-white" />
-            </div>
-            <div className="flex items-baseline gap-1.5">
-              <span className="text-base font-bold text-white tracking-tight">DevOS</span>
-              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-brand-500/15 text-brand-300 border border-brand-500/30 font-semibold">
-                v2.0
-              </span>
-            </div>
-          </div>
+          <Link href="/" className="flex items-center gap-2 hover:opacity-95 transition">
+            <DevOSLogo size={36} withText withBadge />
+          </Link>
 
           <nav className="hidden md:flex items-center gap-6 text-xs text-surface-400 font-medium">
             <a href="#features" className="hover:text-white transition">
@@ -554,10 +547,8 @@ export default function HomePage() {
       <footer className="mt-auto border-t border-white/[0.08] bg-surface-950/80 px-6 py-12 text-xs text-surface-500 z-10">
         <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="h-6 w-6 rounded-lg bg-brand-600 flex items-center justify-center">
-              <Terminal className="h-3.5 w-3.5 text-white" />
-            </div>
-            <span className="font-bold text-white">DevOS</span>
+            <DevOSLogo size={24} />
+            <span className="font-bold text-white font-sans">DevOS</span>
             <span>— The Personal Developer Operating System</span>
           </div>
 

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { DomainCopilot } from '@/components/DomainCopilot';
 import type { Task, TaskStatus, Priority } from '@/types';
 import {
   Plus,
@@ -144,13 +145,16 @@ export default function TasksPage() {
           </div>
         </div>
 
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-glow-sm transition-all"
-        >
-          <Plus className="h-4 w-4" />
-          <span>New Task</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <DomainCopilot agentId="kanban_agent" triggerLabel="Ask Sprint Agent" />
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-glow-sm transition-all"
+          >
+            <Plus className="h-4 w-4" />
+            <span>New Task</span>
+          </button>
+        </div>
       </div>
 
       {/* 5-Column Kanban Board */}

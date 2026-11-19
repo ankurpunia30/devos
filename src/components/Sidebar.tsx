@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import { DevOSLogo } from './DevOSLogo';
 import {
   LayoutDashboard,
   CheckSquare,
@@ -78,20 +79,18 @@ export function Sidebar() {
       <div className="space-y-4">
         {/* Brand Header */}
         <div className="flex items-center justify-between px-2 pt-1 pb-1">
-          <div className="flex items-center space-x-2.5">
-            <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-glow-sm border border-brand-400/30">
-              <Zap className="h-4 w-4 fill-current text-white" />
-            </div>
+          <Link href="/dashboard" className="flex items-center space-x-2.5 hover:opacity-90 transition">
+            <DevOSLogo size={32} />
             <div>
               <div className="flex items-center gap-1.5">
-                <h1 className="font-semibold text-sm tracking-tight text-white">DevOS</h1>
+                <h1 className="font-semibold text-sm tracking-tight text-white font-sans">DevOS</h1>
                 <span className="text-[9px] px-1.5 py-0.2 rounded bg-brand-500/15 text-brand-300 font-mono font-medium border border-brand-500/25">
                   v2.0
                 </span>
               </div>
               <p className="text-[10px] text-surface-400 font-mono">Personal Developer OS</p>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Core Navigation */}

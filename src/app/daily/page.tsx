@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { DomainCopilot } from '@/components/DomainCopilot';
 import type { DailyPriority } from '@/types';
 import {
   Clock,
@@ -205,6 +206,7 @@ export default function DailyWorkspacePage() {
               </div>
 
               <div className="flex items-center gap-2">
+                <DomainCopilot agentId="daily_agent" triggerLabel="Ask Standup Agent" />
                 {standupMarkdown && (
                   <button
                     onClick={handleCopyStandup}

@@ -1,5 +1,6 @@
 import { githubService, integrationService } from '@/lib/services';
 import { DEFAULT_USER_ID } from '@/db/client';
+import { DomainCopilot } from '@/components/DomainCopilot';
 import {
   GitBranch,
   GitPullRequest,
@@ -61,13 +62,16 @@ export default async function GitHubPage() {
           </p>
         </div>
 
-        <Link
-          href="/integrations"
-          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/25 transition-all"
-        >
-          <RotateCcw className="h-3.5 w-3.5" />
-          <span>Configure / Sync GitHub</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <DomainCopilot agentId="github_agent" triggerLabel="Ask Code Review Agent" />
+          <Link
+            href="/integrations"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/25 transition-all"
+          >
+            <RotateCcw className="h-3.5 w-3.5" />
+            <span>Configure / Sync GitHub</span>
+          </Link>
+        </div>
       </div>
 
       {ghIntegration && ghIntegration.status === 'connected' ? (

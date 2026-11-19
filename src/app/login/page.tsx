@@ -3,6 +3,7 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { DevOSLogo } from '@/components/DevOSLogo';
 import { Terminal, Shield, ArrowLeft, Sparkles, CheckCircle2, AlertCircle, Lock } from 'lucide-react';
 
 export const dynamic = 'force-dynamic';
@@ -90,9 +91,7 @@ function LoginContent() {
         <div className="p-8 rounded-3xl bg-surface-900/90 border border-white/[0.08] shadow-2xl backdrop-blur-2xl space-y-6 relative">
           {/* Brand Mark */}
           <div className="flex flex-col items-center text-center space-y-3">
-            <div className="h-12 w-12 rounded-2xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center shadow-glow-md">
-              <Terminal className="h-6 w-6 text-white" />
-            </div>
+            <DevOSLogo size={52} />
             <div>
               <h1 className="text-xl font-bold text-white tracking-tight">
                 Sign in to DevOS

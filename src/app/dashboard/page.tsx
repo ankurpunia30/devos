@@ -10,6 +10,7 @@ import {
   authService,
 } from '@/lib/services';
 import { DEFAULT_USER_ID } from '@/db/client';
+import { DomainCopilot } from '@/components/DomainCopilot';
 import { cookies } from 'next/headers';
 import Link from 'next/link';
 import {
@@ -111,6 +112,7 @@ export default async function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-2.5">
+          <DomainCopilot agentId="dashboard_agent" triggerLabel="Ask Dashboard Agent" />
           <Link
             href="/daily"
             className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-800 hover:bg-surface-700 text-surface-200 border border-white/[0.08] text-xs font-medium transition-all shadow-sm"

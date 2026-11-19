@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { DomainCopilot } from '@/components/DomainCopilot';
 import type { ArchitectureDecision, ADRStatus } from '@/types';
 import {
   Layers,
@@ -109,13 +110,16 @@ export default function ArchitecturePage() {
           </p>
         </div>
 
-        <button
-          onClick={() => setShowModal(true)}
-          className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-glow-sm transition-all"
-        >
-          <Plus className="h-4 w-4" />
-          <span>New ADR</span>
-        </button>
+        <div className="flex items-center gap-2">
+          <DomainCopilot agentId="architecture_agent" triggerLabel="Ask Architecture Agent" />
+          <button
+            onClick={() => setShowModal(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-glow-sm transition-all"
+          >
+            <Plus className="h-4 w-4" />
+            <span>New ADR</span>
+          </button>
+        </div>
       </div>
 
       {/* Main Split View */}

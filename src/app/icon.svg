@@ -1,0 +1,26 @@
+<svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="base" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#4f46e5" />
+      <stop offset="50%" stopColor="#7c3aed" />
+      <stop offset="100%" stopColor="#059669" />
+    </linearGradient>
+    <linearGradient id="top" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stopColor="#818cf8" />
+      <stop offset="100%" stopColor="#6366f1" />
+    </linearGradient>
+    <linearGradient id="right" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#10b981" />
+      <stop offset="100%" stopColor="#047857" />
+    </linearGradient>
+    <linearGradient id="left" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stopColor="#a855f7" />
+      <stop offset="100%" stopColor="#6d28d9" />
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="56" height="56" rx="16" fill="#090d16" stroke="url(#base)" stroke-width="2" />
+  <polygon points="32,15 48,24 32,33 16,24" fill="url(#top)" stroke="#c7d2fe" stroke-width="1" />
+  <polygon points="16,24 32,33 32,49 16,40" fill="url(#left)" stroke="#d8b4fe" stroke-width="1" />
+  <polygon points="32,33 48,24 48,40 32,49" fill="url(#right)" stroke="#a7f3d0" stroke-width="1" />
+  <circle cx="32" cy="33" r="3" fill="#ffffff" />
+</svg>
