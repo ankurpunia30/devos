@@ -128,7 +128,7 @@ export default async function AnalyticsPage() {
             <span>DSA Mastery</span>
           </div>
           <div className="text-xl font-bold font-mono text-emerald-400">{domainTotals.dsa} events</div>
-          <p className="text-[10px] font-mono text-surface-500">NeetCode solves & scheduled revisions</p>
+          <p className="text-[10px] font-mono text-surface-500">LeetCode solves & scheduled revisions</p>
         </div>
 
         <div className="card-linear p-4 space-y-2">

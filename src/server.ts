@@ -39,9 +39,8 @@ export function createServer(dbPath: string = './devos.db') {
     activityBus
   );
 
-  // 4. Read HTML UI template
-  const uiPath = join(__dirname, 'ui', 'dashboard.html');
-  const dashboardHtml = readFileSync(uiPath, 'utf8');
+  // 4. Fallback message (App has migrated to Next.js 16)
+  const dashboardHtml = '<!DOCTYPE html><html><body><h1>DevOS runs on Next.js 16. Please run "npm run dev" to launch the modern App Router application.</h1></body></html>';
 
   // 5. Create HTTP Server
   const server = http.createServer(async (req, res) => {

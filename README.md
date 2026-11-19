@@ -1,7 +1,7 @@
 # DevOS — The Personal Developer Operating System
 
 > **Single Source of Truth for Your Development Life**  
-> Consolidating tasks, projects, GitHub repositories, code reviews, NeetCode 150 practice, engineering knowledge, snippets, and offline developer utilities into a unified, high-density workstation.
+> Consolidating tasks, projects, GitHub repositories, code reviews, LeetCode practice, engineering knowledge, snippets, and offline developer utilities into a unified, high-density workstation.
 
 ---
 
@@ -14,7 +14,7 @@
 ## 🚀 Shipped Modules & Capabilities
 
 ### 1. Executive Dashboard (`/`)
-- **Real-time Telemetry Metrics**: Daily Streak, NeetCode 150 Mastery Percentage, Open Pull Requests, Active Sprint Tickets.
+- **Real-time Telemetry Metrics**: Daily Streak, LeetCode Solves & Mastery Percentage, Open Pull Requests, Active Sprint Tickets.
 - **35-Day Multi-Domain Heatstrip**: Hoverable visual strip capturing cross-domain activities (tasks, git, dsa, daily).
 - **Today's Focus & Daily Rocks**: Fast 1-click completion toggle for essential intentions.
 - **Active Projects & Workspaces**: Multi-repository workspaces with progress bars and tech stack badges.
@@ -37,8 +37,8 @@
 - Pull Request review queue with review status badges: `Approved` (emerald), `Changes Requested` (rose), `Review Pending` (amber).
 - Commit telemetry stream with SHA hashes, author metadata, and commit timestamps.
 
-### 5. NeetCode 150 Practice Matrix (`/dsa`)
-- Pre-seeded **NeetCode 150 Core Curriculum** (Arrays & Hashing, Two Pointers, Sliding Window, Trees, Graphs, DP).
+### 5. LeetCode Practice Matrix & Problem Catalog (`/dsa`)
+- Dynamic **LeetCode Problem Catalog** (Arrays & Hashing, Two Pointers, Sliding Window, Trees, Graphs, DP).
 - Topic tabs with solve count ratios (`solved/total`).
 - Spaced Repetition engine: Marking a problem `solved` automatically schedules revision 3 days into the future.
 - One-click **Solve on LeetCode** direct external navigation.
@@ -75,7 +75,7 @@
 
 ### 12. 3rd-Party Integrations Hub & Webhooks (`/integrations`)
 - **Live GitHub Sync**: Connect Personal Access Token (PAT) or username to synchronize real repositories, recent commits, and pull requests directly into local SQLite.
-- **LeetCode GraphQL Integration**: Connect public LeetCode handle to query `leetcode.com/graphql`, pulling total solved problems (Easy, Medium, Hard) and matching recent submissions to automatically progress the NeetCode 150 matrix.
+- **LeetCode GraphQL Integration**: Connect public LeetCode handle to query `leetcode.com/graphql`, pulling total solved problems (Easy, Medium, Hard) and matching recent submissions to automatically progress the LeetCode catalog and spaced repetition schedule.
 - **Inbound GitHub Webhooks**: Webhook endpoint (`/api/integrations/github/webhook`) listening for `push` and `pull_request` events to update telemetry in real time.
 - **Local Token Masking**: Personal Access Tokens and secrets are stored in local SQLite and masked in the UI.
 

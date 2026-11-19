@@ -4,7 +4,7 @@ import { createDatabase, DEFAULT_USER_ID } from '../src/db/client.ts';
 import { ActivityBus } from '../src/domain/activity-bus.ts';
 import { DSAService } from '../src/domain/dsa-service.ts';
 
-test('DSAService - NeetCode roadmap, status transitions, spaced repetition, and stats', () => {
+test('DSAService - LeetCode problem tracking, status transitions, spaced repetition, and stats', () => {
   const db = createDatabase(':memory:');
   const bus = new ActivityBus(db);
   const service = new DSAService(db, bus);

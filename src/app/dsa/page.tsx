@@ -312,10 +312,10 @@ export default function DSAPage() {
               </div>
               <div>
                 <h3 className="text-sm font-bold text-white tracking-tight">
-                  NeetCode 150 Mastery Matrix & Local Problem Catalog
+                  LeetCode Practice Matrix & Problem Catalog
                 </h3>
                 <p className="text-xs text-surface-400">
-                  Curriculum progress, spaced repetition schedules & individual problem tracking
+                  Track solved problems, spaced repetition schedules & live LeetCode telemetry
                 </p>
               </div>
             </div>
@@ -454,11 +454,6 @@ export default function DSAPage() {
                         <span className="font-semibold text-white group-hover:text-brand-300 transition-colors">
                           {problem.title}
                         </span>
-                        {problem.neetcodeRoadmapFlag && (
-                          <span className="text-[9px] font-mono px-1.5 py-0.2 rounded bg-brand-500/10 text-brand-400 border border-brand-500/20">
-                            NC150
-                          </span>
-                        )}
                       </div>
                       <span className="text-[11px] font-mono text-surface-500">
                         {problem.slug}

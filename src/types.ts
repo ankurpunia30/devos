@@ -180,7 +180,7 @@ export interface GitHubPullRequest {
 }
 
 // ==========================================
-// Phase 2: LeetCode & NeetCode Types
+// Phase 2: LeetCode Types
 // ==========================================
 export type DSADifficulty = 'easy' | 'medium' | 'hard';
 export type DSAStatus = 'pending' | 'attempted' | 'solved' | 'revision_needed';
@@ -199,7 +199,8 @@ export interface DSAProblem {
   slug: string;
   difficulty: DSADifficulty;
   leetcodeUrl: string;
-  neetcodeRoadmapFlag: boolean;
+  roadmapFlag?: boolean;
+  neetcodeRoadmapFlag?: boolean;
   status: DSAStatus;
   notes?: string;
   approachSummary?: string;

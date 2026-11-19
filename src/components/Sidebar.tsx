@@ -29,7 +29,7 @@ const coreNavigation = [
   { name: 'Task Kanban', href: '/tasks', icon: CheckSquare },
   { name: 'Project Hub', href: '/projects', icon: FolderGit2 },
   { name: 'GitHub & PRs', href: '/github', icon: GitBranch },
-  { name: 'LeetCode / NeetCode', href: '/dsa', icon: Code2 },
+  { name: 'LeetCode Practice', href: '/dsa', icon: Code2 },
   { name: 'Daily & Standup', href: '/daily', icon: Clock },
   { name: 'Heatmap & Streaks', href: '/analytics', icon: Flame },
   { name: 'Activity Stream', href: '/activities', icon: Activity },

@@ -144,11 +144,11 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* NeetCode 150 & LeetCode Card */}
+        {/* LeetCode Practice Card */}
         <Link href="/dsa" className="card-linear p-4 space-y-3 block hover:border-emerald-500/40 transition-all group">
           <div className="flex items-center justify-between">
             <span className="text-xs font-medium text-surface-400 group-hover:text-emerald-400 transition-colors">
-              {dsaStats.leetcode?.connected ? 'LeetCode Profile' : 'NeetCode 150'}
+              {dsaStats.leetcode?.connected ? 'LeetCode Profile' : 'LeetCode Practice'}
             </span>
             <div className="h-7 w-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
@@ -172,7 +172,7 @@ export default async function DashboardPage() {
                   <span className="text-surface-600">•</span>
                   <span className="text-rose-400 font-semibold">{dsaStats.leetcode.hardSolved}H</span>
                   <span className="text-surface-400 ml-auto font-mono text-[9px]">
-                    {dsaStats.solved}/{dsaStats.total} roadmap
+                    {dsaStats.solved}/{dsaStats.total} tracked
                   </span>
                 </div>
               </div>
@@ -182,7 +182,7 @@ export default async function DashboardPage() {
                   {dsaStats.solved} <span className="text-sm font-normal text-surface-500">/ {dsaStats.total}</span>
                 </div>
                 <p className="text-[11px] text-emerald-400/90 font-medium mt-0.5">
-                  {dsaStats.masteryPercentage}% Curriculum Solved
+                  {dsaStats.masteryPercentage}% Problems Solved
                 </p>
               </div>
             )}

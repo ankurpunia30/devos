@@ -256,7 +256,7 @@ export class ApiRouter {
         return true;
       }
 
-      // 6. LeetCode & NeetCode Endpoints (Phase 2)
+      // 6. LeetCode Endpoints (Phase 2)
       if (pathname === '/api/dsa/topics' && method === 'GET') {
         const topics = this.dsaService.getTopics();
         this.json(res, 200, { success: true, data: topics });

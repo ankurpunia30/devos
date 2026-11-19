@@ -291,7 +291,7 @@ export default function IntegrationsPage() {
               </div>
               <div>
                 <h3 className="text-sm font-bold text-white">LeetCode GraphQL Integration</h3>
-                <p className="text-xs text-surface-400">Live solved counts & NeetCode 150 status sync</p>
+                <p className="text-xs text-surface-400">Live solved counts & LeetCode problem status sync</p>
               </div>
             </div>
             {lcIntegration ? (
@@ -367,7 +367,7 @@ export default function IntegrationsPage() {
             </h4>
             <ul className="text-[11px] font-mono text-surface-400 space-y-1.5 list-disc list-inside">
               <li>Pulls total solved problems and breakdowns (Easy, Medium, Hard).</li>
-              <li>Matches recent Accepted submissions against your NeetCode 150 matrix.</li>
+              <li>Matches recent Accepted submissions against your LeetCode problem catalog.</li>
               <li>Automatically marks matched problems solved and sets spaced-repetition schedules.</li>
               <li>Logs events directly to your 60-day contribution heatmap.</li>
             </ul>

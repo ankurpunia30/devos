@@ -119,7 +119,7 @@ function seedInitialData(db: DatabaseSync) {
       'ms_devos_phase2',
       proj1Id,
       'Phase 2: Developer Integrations (GitHub & LeetCode)',
-      'Deliver GitHub repo/PR sync, NeetCode 150 practice hub, and Activity Heatmap.',
+      'Deliver GitHub repo/PR sync, LeetCode practice hub, and Activity Heatmap.',
       '2026-12-15',
       0,
       now
@@ -226,7 +226,7 @@ function seedInitialData(db: DatabaseSync) {
     db.prepare(`
       INSERT INTO daily_priorities (id, user_id, date, rank, task_id, custom_title, is_completed)
       VALUES (?, ?, ?, ?, ?, ?, ?)
-    `).run('dp_2', DEFAULT_USER_ID, today, 2, null, 'Solve NeetCode Trapping Rain Water & 3Sum', 0);
+    `).run('dp_2', DEFAULT_USER_ID, today, 2, null, 'Solve LeetCode Trapping Rain Water & 3Sum', 0);
 
     db.prepare(`
       INSERT INTO daily_priorities (id, user_id, date, rank, task_id, custom_title, is_completed)
@@ -294,7 +294,7 @@ function seedInitialData(db: DatabaseSync) {
   }
 
   // ==========================================
-  // Phase 2 Seeds: NeetCode 150 Topics & Problems
+  // Phase 2 Seeds: LeetCode Topics & Problems
   // ==========================================
   const topicCount = (db.prepare('SELECT count(*) as cnt FROM dsa_topics').get() as any)?.cnt || 0;
   if (topicCount === 0) {

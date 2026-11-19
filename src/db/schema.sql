@@ -156,7 +156,7 @@ CREATE TABLE IF NOT EXISTS github_pull_requests (
 );
 
 -- ==========================================
--- Phase 2: LeetCode & NeetCode Tables
+-- Phase 2: LeetCode Tables
 -- ==========================================
 CREATE TABLE IF NOT EXISTS dsa_topics (
     id TEXT PRIMARY KEY,

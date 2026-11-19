@@ -44,7 +44,7 @@ export function CommandPalette() {
     { id: 'tasks', title: 'Task Kanban & Sprints', category: 'Navigation', icon: CheckSquare, href: '/tasks' },
     { id: 'projects', title: 'Project Workspaces', category: 'Navigation', icon: FolderGit2, href: '/projects' },
     { id: 'github', title: 'GitHub Hub & PR Reviews', category: 'Navigation', icon: GitBranch, href: '/github' },
-    { id: 'dsa', title: 'NeetCode 150 Tracker', category: 'Navigation', icon: Code2, href: '/dsa' },
+    { id: 'dsa', title: 'LeetCode Practice Hub', category: 'Navigation', icon: Code2, href: '/dsa' },
     { id: 'daily', title: 'Daily Focus & Standup', category: 'Navigation', icon: Clock, href: '/daily' },
     { id: 'analytics', title: 'Heatmap & Contribution Streaks', category: 'Navigation', icon: Flame, href: '/analytics' },
     { id: 'activities', title: 'Universal Activity Journal', category: 'Navigation', icon: Activity, href: '/activities' },

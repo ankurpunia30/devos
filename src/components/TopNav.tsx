@@ -9,7 +9,7 @@ const routeNames: Record<string, { title: string; subtitle: string }> = {
   '/tasks': { title: 'Task Kanban & Sprints', subtitle: 'Linear-grade sprint backlog & execution' },
   '/projects': { title: 'Project Workspaces', subtitle: 'Multi-repository architecture & milestones' },
   '/github': { title: 'GitHub & PR Review Queue', subtitle: 'Live repositories, commits & pending reviews' },
-  '/dsa': { title: 'NeetCode 150 Practice Matrix', subtitle: 'Curriculum mastery & spaced repetition scheduler' },
+  '/dsa': { title: 'LeetCode Practice Hub', subtitle: 'Live telemetry, problem catalog & spaced repetition schedule' },
   '/daily': { title: 'Daily Focus & Standup', subtitle: 'Pomodoro timer & 1-click grounded standup' },
   '/analytics': { title: 'Heatmap & Contribution Streaks', subtitle: 'Cross-module engineering telemetry' },
   '/activities': { title: 'Universal Activity Journal', subtitle: 'Auditable append-only event stream' },
