@@ -16,6 +16,14 @@ export interface User {
   createdAt: string;
 }
 
+export interface UserSession {
+  id: string;
+  userId: string;
+  token: string;
+  expiresAt: string;
+  createdAt: string;
+}
+
 export interface Project {
   id: string;
   userId: string;
@@ -84,7 +92,9 @@ export type ActivityEventType =
   | 'github.pr_merged'
   | 'dsa.problem_solved'
   | 'dsa.problem_revision_scheduled'
-  | 'dsa.submission_logged';
+  | 'dsa.submission_logged'
+  | 'auth.signup'
+  | 'auth.login';
 
 export interface ActivityEvent {
   id: string;

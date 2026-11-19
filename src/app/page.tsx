@@ -1,443 +1,584 @@
-import {
-  taskService,
-  projectService,
-  githubService,
-  dsaService,
-  heatmapService,
-  activityBus,
-  dailyService,
-  integrationService,
-} from '@/lib/services';
-import { DEFAULT_USER_ID } from '@/db/client';
+'use client';
+
+import { useState } from 'react';
 import Link from 'next/link';
 import {
-  Flame,
+  Terminal,
+  Shield,
+  ArrowRight,
+  Sparkles,
   CheckCircle2,
   GitPullRequest,
-  ListTodo,
-  ArrowRight,
-  Activity,
-  Target,
-  Sparkles,
-  GitCommit,
   Code2,
-  Calendar,
+  Flame,
+  Wrench,
+  Clock,
+  Layers,
+  ChevronRight,
+  Activity,
+  Award,
+  Zap,
+  Lock,
+  ExternalLink,
+  Laptop,
 } from 'lucide-react';
 
-export const dynamic = 'force-dynamic';
-
-export default async function DashboardPage() {
-  const today = new Date().toISOString().slice(0, 10);
-
-  const [
-    tasks,
-    projects,
-    prs,
-    dsaStats,
-    heatmap,
-    priorities,
-    recentActivities,
-    integrations,
-  ] = await Promise.all([
-    taskService.getTasks(DEFAULT_USER_ID),
-    projectService.getProjects(DEFAULT_USER_ID),
-    githubService.getPullRequests(DEFAULT_USER_ID),
-    dsaService.getStats(DEFAULT_USER_ID),
-    heatmapService.getHeatmap(DEFAULT_USER_ID, 35),
-    dailyService.getDailyPriorities(DEFAULT_USER_ID, today),
-    activityBus.getRecentActivities(DEFAULT_USER_ID, 6),
-    integrationService.getIntegrations(DEFAULT_USER_ID),
-  ]);
-
-  const ghIntegration = integrations.find((i) => i.provider === 'github' && i.status === 'connected');
-
-  const inProgressTasks = tasks.filter((t) => t.status === 'in_progress').length;
-  const completedToday = tasks.filter((t) => t.status === 'completed').length;
-  const openPRs = prs.filter((p) => p.state === 'open').length;
-
-  const getHeatmapColor = (cnt: number) => {
-    if (cnt === 0) return 'bg-surface-850 border border-white/[0.04]';
-    if (cnt <= 2) return 'bg-brand-950 border border-brand-800/60 text-brand-400';
-    if (cnt <= 4) return 'bg-brand-800/80 border border-brand-600/70 text-brand-200';
-    if (cnt <= 7) return 'bg-brand-600 border border-brand-400 text-white';
-    return 'bg-emerald-500 border border-emerald-400 text-white shadow-glow-sm';
-  };
-
-  const getDomainIcon = (domain: string) => {
-    switch (domain) {
-      case 'github':
-        return <GitCommit className="h-3.5 w-3.5 text-purple-400" />;
-      case 'dsa':
-        return <Code2 className="h-3.5 w-3.5 text-emerald-400" />;
-      case 'tasks':
-        return <ListTodo className="h-3.5 w-3.5 text-blue-400" />;
-      case 'daily':
-        return <Calendar className="h-3.5 w-3.5 text-amber-400" />;
-      default:
-        return <Activity className="h-3.5 w-3.5 text-brand-400" />;
-    }
-  };
+export default function HomePage() {
+  const [activeTab, setActiveTab] = useState<'dashboard' | 'dsa' | 'github' | 'toolbox'>('dashboard');
 
   return (
-    <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
-      {/* Top Banner / Welcome */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl bg-gradient-to-r from-surface-900 via-surface-900 to-surface-850 border border-white/[0.07] shadow-specular">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-[11px] font-mono font-medium text-emerald-400 uppercase tracking-wider">
-              System Health 100% • All Systems Operational
-            </span>
-          </div>
-          <h1 className="text-xl md:text-2xl font-bold tracking-tight text-white">
-            Welcome back, Lead Engineer
-          </h1>
-          <p className="text-xs text-surface-400 max-w-xl">
-            You have <span className="text-brand-300 font-medium">{inProgressTasks} active tickets</span> in flight,{' '}
-            <span className="text-purple-300 font-medium">{openPRs} pending PRs</span> awaiting review, and a{' '}
-            <span className="text-amber-300 font-medium">{heatmap.currentStreak}-day continuous streak</span>.
-            {dsaStats.leetcode?.connected && (
-              <span className="block mt-1 text-[11px] text-emerald-400 font-mono">
-                ⚡ LeetCode verified: @{dsaStats.leetcode.username} with {dsaStats.leetcode.totalSolved} AC solutions ({dsaStats.leetcode.easySolved}E • {dsaStats.leetcode.mediumSolved}M • {dsaStats.leetcode.hardSolved}H)
+    <div className="min-h-screen bg-surface-950 text-surface-200 selection:bg-brand-500/30 selection:text-brand-100 flex flex-col">
+      {/* Background ambient lighting */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-[1000px] h-[550px] bg-gradient-to-b from-brand-600/15 via-indigo-600/5 to-transparent blur-[160px] rounded-full" />
+        <div className="absolute top-[800px] left-1/4 w-[500px] h-[500px] bg-emerald-500/5 blur-[160px] rounded-full" />
+        <div className="absolute top-[1600px] right-1/4 w-[600px] h-[600px] bg-indigo-500/5 blur-[180px] rounded-full" />
+      </div>
+
+      {/* Modern Marketing Navbar */}
+      <header className="sticky top-0 z-50 w-full border-b border-white/[0.08] bg-surface-950/80 backdrop-blur-xl">
+        <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-gradient-to-br from-brand-500 to-indigo-600 flex items-center justify-center shadow-glow-sm">
+              <Terminal className="h-5 w-5 text-white" />
+            </div>
+            <div className="flex items-baseline gap-1.5">
+              <span className="text-base font-bold text-white tracking-tight">DevOS</span>
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-brand-500/15 text-brand-300 border border-brand-500/30 font-semibold">
+                v2.0
               </span>
-            )}
+            </div>
+          </div>
+
+          <nav className="hidden md:flex items-center gap-6 text-xs text-surface-400 font-medium">
+            <a href="#features" className="hover:text-white transition">
+              Capabilities
+            </a>
+            <a href="#preview" className="hover:text-white transition">
+              Live Preview
+            </a>
+            <a href="#dsa" className="hover:text-white transition">
+              LeetCode Hub
+            </a>
+            <a href="#architecture" className="hover:text-white transition">
+              Architecture
+            </a>
+            <a
+              href="https://github.com/ankurpunia30/devos"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-white transition flex items-center gap-1"
+            >
+              <span>GitHub</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </nav>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/dashboard"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold text-surface-300 hover:text-white hover:bg-white/[0.06] transition"
+            >
+              <span>Dashboard</span>
+              <ArrowRight className="h-3 w-3" />
+            </Link>
+            <Link
+              href="/login"
+              className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white hover:bg-surface-100 text-surface-950 text-xs font-semibold transition shadow-glow-sm active:scale-[0.99]"
+            >
+              {/* Google G Logo */}
+              <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                />
+              </svg>
+              <span>Sign In with Google</span>
+            </Link>
+          </div>
+        </div>
+      </header>
+
+      {/* Hero Section */}
+      <section className="relative z-10 pt-20 pb-16 px-6 max-w-6xl mx-auto text-center space-y-8">
+        {/* Pill Badge */}
+        <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-brand-300 text-xs font-mono shadow-glow-sm">
+          <Sparkles className="h-3.5 w-3.5 text-brand-400" />
+          <span>DevOS 2.0 • The Developer Operating System</span>
+        </div>
+
+        {/* Primary Headline */}
+        <div className="space-y-4 max-w-4xl mx-auto">
+          <h1 className="text-4xl sm:text-6xl font-extrabold text-white tracking-tight leading-[1.12]">
+            The Operating System Built for{' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-brand-400 via-indigo-300 to-emerald-400">
+              Modern Engineers
+            </span>
+          </h1>
+          <p className="text-base sm:text-lg text-surface-400 max-w-2xl mx-auto leading-relaxed">
+            Replace 10 fragmented tabs with one consolidated workstation. Linear-grade task kanban, real-time GitHub PR telemetry, dynamic LeetCode practice matrix, and offline developer utilities.
           </p>
         </div>
-        <div className="flex items-center gap-2.5">
+
+        {/* Dual Call-to-Actions */}
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
           <Link
-            href="/daily"
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-surface-800 hover:bg-surface-700 text-surface-200 border border-white/[0.08] text-xs font-medium transition-all shadow-sm"
+            href="/login"
+            className="w-full sm:w-auto flex items-center justify-center gap-2.5 px-6 py-3.5 rounded-2xl bg-white hover:bg-surface-100 text-surface-950 font-bold text-xs transition-all shadow-glow-md active:scale-[0.99] cursor-pointer"
           >
-            <Sparkles className="h-3.5 w-3.5 text-brand-400" />
-            <span>Generate Standup</span>
+            {/* Google Icon */}
+            <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
+              <path
+                fill="#4285F4"
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+              />
+              <path
+                fill="#34A853"
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+              />
+              <path
+                fill="#FBBC05"
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+              />
+              <path
+                fill="#EA4335"
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+              />
+            </svg>
+            <span>Sign In with Google</span>
           </Link>
           <Link
-            href="/tasks"
-            className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-glow-sm transition-all"
+            href="/dashboard"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-surface-900 hover:bg-surface-850 text-white font-semibold text-xs border border-white/[0.08] hover:border-brand-500/40 transition shadow-specular active:scale-[0.99]"
           >
-            <span>Open Kanban</span>
-            <ArrowRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-      </div>
-
-      {/* Metrics Row (Bento Grid) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Streak Card */}
-        <div className="card-linear p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-surface-400">Activity Streak</span>
-            <div className="h-7 w-7 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <Flame className="h-4 w-4 text-amber-400" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-white font-mono tracking-tight">
-              🔥 {heatmap.currentStreak} Days
-            </div>
-            <p className="text-[11px] text-amber-400/90 font-medium mt-0.5">
-              Longest: {heatmap.longestStreak} days
-            </p>
-          </div>
-          <div className="h-1.5 w-full bg-surface-800 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-amber-500 to-orange-500 rounded-full" style={{ width: `${Math.min(100, (heatmap.currentStreak / 30) * 100)}%` }} />
-          </div>
-        </div>
-
-        {/* LeetCode Practice Card */}
-        <Link href="/dsa" className="card-linear p-4 space-y-3 block hover:border-emerald-500/40 transition-all group">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-surface-400 group-hover:text-emerald-400 transition-colors">
-              {dsaStats.leetcode?.connected ? 'LeetCode Profile' : 'LeetCode Practice'}
-            </span>
-            <div className="h-7 w-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-              <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-            </div>
-          </div>
-          <div>
-            {dsaStats.leetcode?.connected ? (
-              <div>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-2xl font-bold text-white font-mono tracking-tight">
-                    {dsaStats.leetcode.totalSolved}
-                  </span>
-                  <span className="text-xs font-mono text-emerald-400 font-semibold truncate">
-                    @{dsaStats.leetcode.username}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 text-[10px] font-mono mt-1">
-                  <span className="text-emerald-400 font-semibold">{dsaStats.leetcode.easySolved}E</span>
-                  <span className="text-surface-600">•</span>
-                  <span className="text-amber-400 font-semibold">{dsaStats.leetcode.mediumSolved}M</span>
-                  <span className="text-surface-600">•</span>
-                  <span className="text-rose-400 font-semibold">{dsaStats.leetcode.hardSolved}H</span>
-                  <span className="text-surface-400 ml-auto font-mono text-[9px]">
-                    {dsaStats.solved}/{dsaStats.total} tracked
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <div className="text-2xl font-bold text-white font-mono tracking-tight">
-                  {dsaStats.solved} <span className="text-sm font-normal text-surface-500">/ {dsaStats.total}</span>
-                </div>
-                <p className="text-[11px] text-emerald-400/90 font-medium mt-0.5">
-                  {dsaStats.masteryPercentage}% Problems Solved
-                </p>
-              </div>
-            )}
-          </div>
-          <div className="h-1.5 w-full bg-surface-800 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500" style={{ width: `${dsaStats.masteryPercentage}%` }} />
-          </div>
-        </Link>
-
-        {/* Pull Requests Card */}
-        <Link href="/github" className="card-linear p-4 space-y-3 block hover:border-purple-500/40 transition-all group">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-surface-400 group-hover:text-purple-400 transition-colors">
-              {ghIntegration ? 'GitHub Synced' : 'Open Pull Requests'}
-            </span>
-            <div className="h-7 w-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
-              <GitPullRequest className="h-4 w-4 text-purple-400" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-white font-mono tracking-tight">
-              {openPRs} <span className="text-sm font-normal text-surface-500">In Review</span>
-            </div>
-            <p className="text-[11px] text-purple-400/90 font-medium mt-0.5">
-              {ghIntegration ? `@${ghIntegration.accountIdentifier} • ` : ''}{prs.length} monitored PRs
-            </p>
-          </div>
-          <div className="h-1.5 w-full bg-surface-800 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" style={{ width: `${openPRs > 0 ? 60 : 10}%` }} />
-          </div>
-        </Link>
-
-        {/* Tasks Card */}
-        <div className="card-linear p-4 space-y-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-surface-400">Active Sprint Tasks</span>
-            <div className="h-7 w-7 rounded-lg bg-brand-500/10 border border-brand-500/20 flex items-center justify-center">
-              <ListTodo className="h-4 w-4 text-brand-400" />
-            </div>
-          </div>
-          <div>
-            <div className="text-2xl font-bold text-white font-mono tracking-tight">
-              {inProgressTasks} <span className="text-sm font-normal text-surface-500">In Progress</span>
-            </div>
-            <p className="text-[11px] text-brand-400/90 font-medium mt-0.5">
-              {completedToday} completed tickets
-            </p>
-          </div>
-          <div className="h-1.5 w-full bg-surface-800 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-brand-500 to-blue-500 rounded-full" style={{ width: `${Math.min(100, (completedToday / Math.max(1, tasks.length)) * 100)}%` }} />
-          </div>
-        </div>
-      </div>
-
-      {/* 35-Day Heatmap Strip */}
-      <div className="card-linear p-5 space-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Flame className="h-4 w-4 text-brand-400" />
-            <h3 className="text-xs font-semibold text-white tracking-tight">
-              35-Day Cross-Domain Activity Heatstrip
-            </h3>
-          </div>
-          <Link
-            href="/analytics"
-            className="text-[11px] font-mono text-brand-400 hover:text-brand-300 flex items-center gap-1"
-          >
-            <span>Full 60-Day Matrix</span>
-            <ArrowRight className="h-3 w-3" />
+            <Laptop className="h-4 w-4 text-brand-400" />
+            <span>Open Executive Dashboard</span>
+            <ChevronRight className="h-4 w-4 text-surface-500" />
           </Link>
         </div>
 
-        <div className="flex items-center justify-between gap-1 overflow-x-auto pb-1 pt-1">
-          {heatmap.contributions.slice(-35).map((day) => (
-            <div key={day.date} className="flex flex-col items-center gap-1 group relative">
-              <div
-                className={`h-7 w-7 rounded-md flex items-center justify-center text-[10px] font-mono font-bold transition-all group-hover:scale-110 cursor-pointer ${getHeatmapColor(
-                  day.count
-                )}`}
-              >
-                {day.count > 0 ? day.count : ''}
-              </div>
-              <span className="text-[9px] text-surface-500 font-mono hidden md:block">
-                {day.date.slice(8)}
+        {/* Signup Guarantee Microcopy */}
+        <p className="text-[11px] text-surface-500 font-mono">
+          Signup is strictly enabled via Google OAuth. Zero passwords to remember.
+        </p>
+
+        {/* Feature Badges Strip */}
+        <div className="pt-6 flex flex-wrap items-center justify-center gap-3 text-xs text-surface-400">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-900 border border-white/[0.06]">
+            <Zap className="h-3.5 w-3.5 text-amber-400" />
+            <span>SQLite WAL Sub-Millisecond Speed</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-900 border border-white/[0.06]">
+            <Shield className="h-3.5 w-3.5 text-emerald-400" />
+            <span>Local & Offline-First Privacy</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-900 border border-white/[0.06]">
+            <Code2 className="h-3.5 w-3.5 text-brand-400" />
+            <span>100% Dynamic LeetCode Hub</span>
+          </div>
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-900 border border-white/[0.06]">
+            <Lock className="h-3.5 w-3.5 text-indigo-400" />
+            <span>Google OAuth Authenticated</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Interactive OS Window Preview Section */}
+      <section id="preview" className="relative z-10 px-6 max-w-6xl mx-auto w-full pb-20">
+        <div className="rounded-3xl bg-surface-900/90 border border-white/[0.1] shadow-2xl overflow-hidden backdrop-blur-2xl">
+          {/* macOS Titlebar */}
+          <div className="px-5 py-3.5 border-b border-white/[0.08] bg-surface-950/90 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full bg-rose-500/80 inline-block" />
+              <span className="h-3 w-3 rounded-full bg-amber-500/80 inline-block" />
+              <span className="h-3 w-3 rounded-full bg-emerald-500/80 inline-block" />
+              <span className="text-xs font-mono text-surface-400 ml-2 font-medium">
+                devos.local — Workstation Preview
               </span>
-
-              {/* Tooltip */}
-              <div className="absolute bottom-10 left-1/2 -translate-x-1/2 hidden group-hover:flex flex-col z-20 px-2.5 py-1.5 rounded-lg bg-surface-950 border border-white/10 text-[10px] font-mono whitespace-nowrap shadow-xl">
-                <span className="font-bold text-white">{day.date}</span>
-                <span className="text-brand-300">{day.count} activities</span>
-                <span className="text-surface-400">
-                  {day.breakdown.tasks} tasks • {day.breakdown.github} git • {day.breakdown.dsa} dsa
-                </span>
-              </div>
             </div>
-          ))}
-        </div>
-      </div>
 
-      {/* Main Grid: Today's Priorities + Projects Hub + Live Activity */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left Column (2 spans): Today's Rocks + Active Projects */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Today's Priorities (Daily Rocks) */}
-          <div className="card-linear p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Target className="h-4 w-4 text-emerald-400" />
-                <h3 className="text-sm font-semibold text-white">Today&apos;s Focus & Daily Rocks</h3>
-              </div>
-              <Link
-                href="/daily"
-                className="text-xs text-surface-400 hover:text-surface-200 flex items-center gap-1 font-mono"
+            {/* Interactive Tab Switcher */}
+            <div className="flex items-center gap-1 bg-surface-900 p-1 rounded-xl border border-white/[0.06]">
+              <button
+                onClick={() => setActiveTab('dashboard')}
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
+                  activeTab === 'dashboard'
+                    ? 'bg-brand-600 text-white font-bold shadow-sm'
+                    : 'text-surface-400 hover:text-white'
+                }`}
               >
-                <span>Manage Rocks</span>
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
-
-            <div className="space-y-2">
-              {priorities.length === 0 ? (
-                <div className="py-6 text-center text-xs text-surface-500 font-mono">
-                  No daily rocks scheduled for today. Head to My Day to set your Top 3.
-                </div>
-              ) : (
-                priorities.map((rock) => (
-                  <div
-                    key={rock.id}
-                    className={`flex items-center justify-between p-3 rounded-xl border transition-all ${
-                      rock.isCompleted
-                        ? 'bg-emerald-950/20 border-emerald-500/20 text-emerald-300 line-through opacity-75'
-                        : 'bg-surface-850/60 border-white/[0.05] text-surface-200 hover:border-white/[0.1]'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className="h-5 w-5 rounded-md bg-surface-800 border border-white/10 flex items-center justify-center font-mono text-[10px] text-surface-400 font-bold">
-                        #{rock.rank}
-                      </span>
-                      <span className="text-xs font-medium">{rock.customTitle || 'Priority Task'}</span>
-                    </div>
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-surface-800 text-surface-400 border border-white/[0.05]">
-                      {rock.isCompleted ? 'Done' : 'Pending'}
-                    </span>
-                  </div>
-                ))
-              )}
+                Executive Dashboard
+              </button>
+              <button
+                onClick={() => setActiveTab('dsa')}
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
+                  activeTab === 'dsa'
+                    ? 'bg-brand-600 text-white font-bold shadow-sm'
+                    : 'text-surface-400 hover:text-white'
+                }`}
+              >
+                LeetCode Matrix
+              </button>
+              <button
+                onClick={() => setActiveTab('github')}
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
+                  activeTab === 'github'
+                    ? 'bg-brand-600 text-white font-bold shadow-sm'
+                    : 'text-surface-400 hover:text-white'
+                }`}
+              >
+                GitHub PR Queue
+              </button>
+              <button
+                onClick={() => setActiveTab('toolbox')}
+                className={`px-3 py-1 rounded-lg text-xs font-medium transition cursor-pointer ${
+                  activeTab === 'toolbox'
+                    ? 'bg-brand-600 text-white font-bold shadow-sm'
+                    : 'text-surface-400 hover:text-white'
+                }`}
+              >
+                Developer Toolbox
+              </button>
             </div>
           </div>
 
-          {/* Active Projects Hub */}
-          <div className="card-linear p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
-                <span>Active Workspaces & Projects</span>
-              </h3>
-              <Link
-                href="/projects"
-                className="text-xs text-surface-400 hover:text-surface-200 flex items-center gap-1 font-mono"
-              >
-                <span>View All ({projects.length})</span>
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-              {projects.slice(0, 4).map((proj) => (
-                <div
-                  key={proj.id}
-                  className="p-3.5 rounded-xl bg-surface-850/50 border border-white/[0.06] hover:border-brand-500/30 transition-all space-y-3"
-                >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-xs font-bold text-white">{proj.name}</h4>
-                      <p className="text-[11px] text-surface-400 line-clamp-1">{proj.description}</p>
+          {/* Interactive Window Body */}
+          <div className="p-6 sm:p-8 bg-surface-950/70">
+            {activeTab === 'dashboard' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  <div className="p-4 rounded-2xl bg-surface-900 border border-white/[0.08]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-surface-400">Activity Streak</span>
+                      <Flame className="h-4 w-4 text-amber-400" />
                     </div>
-                    <span className="pill-badge bg-brand-500/10 text-brand-300 border-brand-500/20">
-                      {proj.category}
-                    </span>
+                    <span className="text-2xl font-bold font-mono text-white mt-1 block">1 Day</span>
+                    <span className="text-[11px] text-emerald-400 font-mono">Continuous ritual</span>
                   </div>
-
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between text-[10px] font-mono text-surface-400">
-                      <span>Progress</span>
-                      <span className="font-bold text-surface-200">{proj.progressPercentage}%</span>
+                  <div className="p-4 rounded-2xl bg-surface-900 border border-white/[0.08]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-surface-400">LeetCode Solved</span>
+                      <Award className="h-4 w-4 text-emerald-400" />
                     </div>
-                    <div className="h-1.5 w-full bg-surface-800 rounded-full overflow-hidden">
+                    <span className="text-2xl font-bold font-mono text-white mt-1 block">934</span>
+                    <span className="text-[11px] text-surface-400 font-mono">Live GraphQL synced</span>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-surface-900 border border-white/[0.08]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-surface-400">Pending PRs</span>
+                      <GitPullRequest className="h-4 w-4 text-brand-400" />
+                    </div>
+                    <span className="text-2xl font-bold font-mono text-white mt-1 block">1 Open</span>
+                    <span className="text-[11px] text-amber-400 font-mono">Review requested</span>
+                  </div>
+                  <div className="p-4 rounded-2xl bg-surface-900 border border-white/[0.08]">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-surface-400">System Health</span>
+                      <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                    </div>
+                    <span className="text-2xl font-bold font-mono text-emerald-300 mt-1 block">100%</span>
+                    <span className="text-[11px] text-emerald-400 font-mono">All systems operational</span>
+                  </div>
+                </div>
+
+                {/* 35-Day Heatstrip Preview */}
+                <div className="p-5 rounded-2xl bg-surface-900 border border-white/[0.08] space-y-3">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-semibold text-white">35-Day Multi-Domain Activity Heatstrip</span>
+                    <span className="text-surface-400 font-mono">Tasks • Git • LeetCode • Daily</span>
+                  </div>
+                  <div className="grid grid-cols-7 sm:grid-cols-35 gap-1.5 py-1">
+                    {Array.from({ length: 35 }).map((_, i) => (
                       <div
-                        className="h-full bg-brand-500 rounded-full"
-                        style={{ width: `${proj.progressPercentage}%` }}
+                        key={i}
+                        className={`h-6 rounded-md border ${
+                          i > 25
+                            ? 'bg-brand-600/60 border-brand-500/40'
+                            : i % 3 === 0
+                            ? 'bg-emerald-500/40 border-emerald-500/30'
+                            : 'bg-surface-850 border-white/[0.04]'
+                        }`}
                       />
-                    </div>
-                  </div>
-
-                  <div className="flex flex-wrap gap-1 pt-1">
-                    {proj.techStack.slice(0, 3).map((tech) => (
-                      <span
-                        key={tech}
-                        className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-surface-800 text-surface-400 border border-white/[0.04]"
-                      >
-                        {tech}
-                      </span>
                     ))}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Right Column: Live Universal Activity Stream */}
-        <div className="space-y-6">
-          <div className="card-linear p-5 space-y-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Activity className="h-4 w-4 text-brand-400" />
-                <h3 className="text-sm font-semibold text-white">Live Activity Stream</h3>
               </div>
-              <Link
-                href="/activities"
-                className="text-xs text-surface-400 hover:text-surface-200 font-mono flex items-center gap-1"
-              >
-                <span>Journal</span>
-                <ArrowRight className="h-3 w-3" />
-              </Link>
-            </div>
+            )}
 
-            <div className="space-y-3">
-              {recentActivities.map((act) => (
-                <div
-                  key={act.id}
-                  className="flex items-start gap-3 p-2.5 rounded-xl bg-surface-850/40 border border-white/[0.04] hover:bg-surface-850 transition-colors"
-                >
-                  <div className="h-7 w-7 rounded-lg bg-surface-800 border border-white/[0.06] flex items-center justify-center shrink-0 mt-0.5">
-                    {getDomainIcon(act.sourceDomain)}
+            {activeTab === 'dsa' && (
+              <div className="space-y-4">
+                <div className="p-4 rounded-2xl bg-gradient-to-r from-amber-500/10 via-brand-500/10 to-transparent border border-amber-500/20 flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-xl bg-amber-500/20 flex items-center justify-center">
+                      <Code2 className="h-5 w-5 text-amber-400" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold text-white">Verified Profile: @ankurpunia28</h4>
+                      <p className="text-xs text-surface-400">934 Total Solved (282 Easy / 557 Medium / 95 Hard)</p>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-xs font-medium text-surface-200 truncate">{act.title}</p>
-                    {act.description && (
-                      <p className="text-[11px] text-surface-400 truncate">{act.description}</p>
-                    )}
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.2 rounded bg-surface-800 text-surface-400 border border-white/[0.04]">
-                        {act.sourceDomain}
+                  <span className="px-3 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-xs font-mono font-bold">
+                    Live Synced
+                  </span>
+                </div>
+
+                <div className="rounded-2xl border border-white/[0.08] overflow-hidden bg-surface-900">
+                  <div className="p-3 border-b border-white/[0.08] text-xs font-mono text-surface-400 flex justify-between">
+                    <span>Problem & Difficulty</span>
+                    <span>Status & Spaced Repetition</span>
+                  </div>
+                  <div className="divide-y divide-white/[0.04] text-xs">
+                    <div className="p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white">Trapping Rain Water</span>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] bg-rose-500/15 text-rose-300 border border-rose-500/30 font-mono">
+                          HARD
+                        </span>
+                      </div>
+                      <span className="text-emerald-400 font-mono flex items-center gap-1">
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Solved • Revision in 3d
                       </span>
-                      <span className="text-[10px] font-mono text-surface-500">
-                        {new Date(act.occurredAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </div>
+                    <div className="p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white">3Sum</span>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] bg-amber-500/15 text-amber-300 border border-amber-500/30 font-mono">
+                          MEDIUM
+                        </span>
+                      </div>
+                      <span className="text-amber-400 font-mono flex items-center gap-1">
+                        <Clock className="h-3.5 w-3.5" /> Revision Needed
+                      </span>
+                    </div>
+                    <div className="p-3 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-white">Two Sum</span>
+                        <span className="px-1.5 py-0.5 rounded text-[10px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono">
+                          EASY
+                        </span>
+                      </div>
+                      <span className="text-emerald-400 font-mono flex items-center gap-1">
+                        <CheckCircle2 className="h-3.5 w-3.5" /> Solved
                       </span>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
+
+            {activeTab === 'github' && (
+              <div className="space-y-4">
+                <div className="p-4 rounded-2xl bg-surface-900 border border-white/[0.08] space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <GitPullRequest className="h-4 w-4 text-brand-400" />
+                      <span className="text-xs font-bold text-white">Pull Request Review Stream</span>
+                    </div>
+                    <span className="text-[11px] font-mono text-surface-400">Inbound Webhook Active</span>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-surface-950 border border-white/[0.06] flex items-center justify-between">
+                    <div>
+                      <span className="text-xs font-semibold text-white block">
+                        #42 feat(auth): add Google OAuth 2.0 zero-password workflow
+                      </span>
+                      <span className="text-[11px] text-surface-400 font-mono">
+                        ankurpunia30/devos • by lead-engineer
+                      </span>
+                    </div>
+                    <span className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 text-[11px] font-mono">
+                      Approved
+                    </span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === 'toolbox' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="p-4 rounded-2xl bg-surface-900 border border-white/[0.08] space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-white">
+                    <Wrench className="h-4 w-4 text-brand-400" />
+                    <span>Offline JWT Claim Decoder</span>
+                  </div>
+                  <p className="text-[11px] text-surface-400 leading-relaxed">
+                    Client-side token parsing without sending private claims across the internet.
+                  </p>
+                  <div className="p-2.5 rounded-xl bg-surface-950 border border-white/[0.06] text-[10px] font-mono text-emerald-300">
+                    &#123; &quot;sub&quot;: &quot;usr_devos_root&quot;, &quot;role&quot;: &quot;lead_engineer&quot; &#125;
+                  </div>
+                </div>
+                <div className="p-4 rounded-2xl bg-surface-900 border border-white/[0.08] space-y-2">
+                  <div className="flex items-center gap-2 text-xs font-bold text-white">
+                    <Terminal className="h-4 w-4 text-emerald-400" />
+                    <span>Cryptographic UUID v4</span>
+                  </div>
+                  <p className="text-[11px] text-surface-400 leading-relaxed">
+                    RFC 4122 compliant UUID generation with 1-click clipboard copy.
+                  </p>
+                  <div className="p-2.5 rounded-xl bg-surface-950 border border-white/[0.06] text-[10px] font-mono text-brand-300">
+                    d54c979e-4e44-48e0-a922-3112b07e8412
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      </div>
+      </section>
+
+      {/* Six Core Pillars Grid */}
+      <section id="features" className="relative z-10 px-6 max-w-6xl mx-auto w-full py-16 space-y-12">
+        <div className="text-center space-y-3">
+          <h2 className="text-2xl sm:text-4xl font-bold text-white tracking-tight">
+            Designed for Developers Who Value High Density
+          </h2>
+          <p className="text-xs sm:text-sm text-surface-400 max-w-xl mx-auto">
+            Everything an engineer needs during a sprint, technical interview cycle, or production release.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Pillar 1 */}
+          <div className="p-6 rounded-3xl bg-surface-900/80 border border-white/[0.08] space-y-3 hover:border-brand-500/40 transition group">
+            <div className="h-10 w-10 rounded-2xl bg-brand-500/10 border border-brand-500/20 flex items-center justify-center text-brand-400 group-hover:scale-105 transition-transform">
+              <Terminal className="h-5 w-5" />
+            </div>
+            <h3 className="text-base font-bold text-white">Linear-Grade Sprints & Kanban</h3>
+            <p className="text-xs text-surface-400 leading-relaxed">
+              5-column kanban board with instant keyboard navigation, priority badges, and an automated grounded standup generator that writes daily reports from actual completed code.
+            </p>
+          </div>
+
+          {/* Pillar 2 */}
+          <div className="p-6 rounded-3xl bg-surface-900/80 border border-white/[0.08] space-y-3 hover:border-brand-500/40 transition group">
+            <div className="h-10 w-10 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 group-hover:scale-105 transition-transform">
+              <Code2 className="h-5 w-5" />
+            </div>
+            <h3 className="text-base font-bold text-white">Dynamic LeetCode Practice Matrix</h3>
+            <p className="text-xs text-surface-400 leading-relaxed">
+              100% dynamic problem ingestion with live GraphQL telemetry, spaced repetition engine that automatically schedules reviews 3 days out, and session token sync for 930+ solves.
+            </p>
+          </div>
+
+          {/* Pillar 3 */}
+          <div className="p-6 rounded-3xl bg-surface-900/80 border border-white/[0.08] space-y-3 hover:border-brand-500/40 transition group">
+            <div className="h-10 w-10 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400 group-hover:scale-105 transition-transform">
+              <GitPullRequest className="h-5 w-5" />
+            </div>
+            <h3 className="text-base font-bold text-white">GitHub PR & Review Queue</h3>
+            <p className="text-xs text-surface-400 leading-relaxed">
+              Synchronize pull requests, commits, and repositories. Review status chips with color-coded approvals, changes requested, and live inbound webhook listeners.
+            </p>
+          </div>
+
+          {/* Pillar 4 */}
+          <div className="p-6 rounded-3xl bg-surface-900/80 border border-white/[0.08] space-y-3 hover:border-brand-500/40 transition group">
+            <div className="h-10 w-10 rounded-2xl bg-indigo-500/10 border border-indigo-500/20 flex items-center justify-center text-indigo-400 group-hover:scale-105 transition-transform">
+              <Wrench className="h-5 w-5" />
+            </div>
+            <h3 className="text-base font-bold text-white">Developer Offline Toolbox</h3>
+            <p className="text-xs text-surface-400 leading-relaxed">
+              Zero-latency client-side utilities including JSON formatter/beautifier, offline JWT inspector, Base64 encoder/decoder, UUID v4 generator, and epoch timestamp converter.
+            </p>
+          </div>
+
+          {/* Pillar 5 */}
+          <div className="p-6 rounded-3xl bg-surface-900/80 border border-white/[0.08] space-y-3 hover:border-brand-500/40 transition group">
+            <div className="h-10 w-10 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 group-hover:scale-105 transition-transform">
+              <Layers className="h-5 w-5" />
+            </div>
+            <h3 className="text-base font-bold text-white">Architecture Decisions & ADRs</h3>
+            <p className="text-xs text-surface-400 leading-relaxed">
+              Track system architecture proposals, accepted tradeoffs, and consequences with numbered sequencing and built-in Mermaid diagram rendering.
+            </p>
+          </div>
+
+          {/* Pillar 6 */}
+          <div className="p-6 rounded-3xl bg-surface-900/80 border border-white/[0.08] space-y-3 hover:border-brand-500/40 transition group">
+            <div className="h-10 w-10 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center text-rose-400 group-hover:scale-105 transition-transform">
+              <Shield className="h-5 w-5" />
+            </div>
+            <h3 className="text-base font-bold text-white">Google OAuth Authentication</h3>
+            <p className="text-xs text-surface-400 leading-relaxed">
+              Signup and signin strictly powered by Google OAuth 2.0 with HTTP-only session tokens. No password breaches, zero friction, and isolated local SQLite persistence.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Architecture & Performance Callout */}
+      <section id="architecture" className="relative z-10 px-6 max-w-6xl mx-auto w-full py-12">
+        <div className="p-8 sm:p-12 rounded-3xl bg-gradient-to-br from-surface-900 via-surface-900/90 to-surface-950 border border-white/[0.08] flex flex-col md:flex-row items-center justify-between gap-8">
+          <div className="space-y-3 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-mono">
+              <Zap className="h-3 w-3" />
+              <span>Next.js 16 • React 19 • SQLite WAL</span>
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Local-First Speed with Zero Cloud Privacy Leaks
+            </h3>
+            <p className="text-xs sm:text-sm text-surface-400 leading-relaxed">
+              DevOS runs on Node.js native <code className="text-white font-mono bg-white/[0.08] px-1 py-0.5 rounded">DatabaseSync</code> with WAL mode enabled. Read and write operations complete in under 2ms. No third-party analytics trackers, zero data harvesting.
+            </p>
+          </div>
+          <div className="flex flex-col gap-3 w-full sm:w-auto shrink-0">
+            <Link
+              href="/login"
+              className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-white hover:bg-surface-100 text-surface-950 text-xs font-bold transition shadow-glow-sm cursor-pointer"
+            >
+              <span>Get Started with Google</span>
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+            <Link
+              href="/dashboard"
+              className="flex items-center justify-center gap-2 px-6 py-3.5 rounded-2xl bg-surface-800 hover:bg-surface-700 text-surface-200 text-xs font-semibold border border-white/[0.08] transition"
+            >
+              <span>Explore Dashboard</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="mt-auto border-t border-white/[0.08] bg-surface-950/80 px-6 py-12 text-xs text-surface-500 z-10">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 rounded-lg bg-brand-600 flex items-center justify-center">
+              <Terminal className="h-3.5 w-3.5 text-white" />
+            </div>
+            <span className="font-bold text-white">DevOS</span>
+            <span>— The Personal Developer Operating System</span>
+          </div>
+
+          <div className="flex items-center gap-6 font-medium">
+            <Link href="/login" className="hover:text-surface-300 transition">
+              Sign In
+            </Link>
+            <Link href="/dashboard" className="hover:text-surface-300 transition">
+              Executive Dashboard
+            </Link>
+            <a
+              href="https://github.com/ankurpunia30/devos"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:text-surface-300 transition"
+            >
+              GitHub Repository
+            </a>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

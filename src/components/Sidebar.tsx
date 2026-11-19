@@ -25,7 +25,7 @@ import {
 import { useState } from 'react';
 
 const coreNavigation = [
-  { name: 'Dashboard', href: '/', icon: LayoutDashboard },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Task Kanban', href: '/tasks', icon: CheckSquare },
   { name: 'Project Hub', href: '/projects', icon: FolderGit2 },
   { name: 'GitHub & PRs', href: '/github', icon: GitBranch },

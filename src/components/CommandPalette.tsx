@@ -40,7 +40,7 @@ export function CommandPalette() {
   const router = useRouter();
 
   const commands: CommandItem[] = [
-    { id: 'dash', title: 'Executive Dashboard', category: 'Navigation', icon: LayoutDashboard, href: '/' },
+    { id: 'dash', title: 'Executive Dashboard', category: 'Navigation', icon: LayoutDashboard, href: '/dashboard' },
     { id: 'tasks', title: 'Task Kanban & Sprints', category: 'Navigation', icon: CheckSquare, href: '/tasks' },
     { id: 'projects', title: 'Project Workspaces', category: 'Navigation', icon: FolderGit2, href: '/projects' },
     { id: 'github', title: 'GitHub Hub & PR Reviews', category: 'Navigation', icon: GitBranch, href: '/github' },

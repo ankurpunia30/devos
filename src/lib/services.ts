@@ -11,6 +11,7 @@ import { ArchitectureService } from '../domain/architecture-service.ts';
 import { DeploymentService } from '../domain/deployment-service.ts';
 import { AiAssistantService } from '../domain/ai-assistant-service.ts';
 import { IntegrationService } from '../domain/integration-service.ts';
+import { AuthService } from '../domain/auth-service.ts';
 
 // Global singleton across hot-reloads
 const globalForServices = globalThis as unknown as {
@@ -27,6 +28,7 @@ const globalForServices = globalThis as unknown as {
   deploymentService?: DeploymentService;
   aiAssistantService?: AiAssistantService;
   integrationService?: IntegrationService;
+  authService?: AuthService;
 };
 
 const dbPath = process.env.DEVOS_DB_PATH || (process.env.VERCEL ? '/tmp/devos.db' : './devos.db');
@@ -68,3 +70,6 @@ if (process.env.NODE_ENV !== 'production') globalForServices.aiAssistantService 
 
 export const integrationService = globalForServices.integrationService || new IntegrationService(db, activityBus, githubService, dsaService);
 if (process.env.NODE_ENV !== 'production') globalForServices.integrationService = integrationService;
+
+export const authService = globalForServices.authService || new AuthService(db, activityBus);
+if (process.env.NODE_ENV !== 'production') globalForServices.authService = authService;

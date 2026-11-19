@@ -1,11 +1,12 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
-import { Search, Plus, Terminal, Sparkles, CheckCircle2 } from 'lucide-react';
+import { usePathname, useRouter } from 'next/navigation';
+import { Search, Plus, Terminal, Sparkles, CheckCircle2, LogOut } from 'lucide-react';
 import Link from 'next/link';
 
 const routeNames: Record<string, { title: string; subtitle: string }> = {
-  '/': { title: 'Executive Dashboard', subtitle: 'Single source of truth for developer telemetry' },
+  '/': { title: 'Home', subtitle: 'DevOS Landing' },
+  '/dashboard': { title: 'Executive Dashboard', subtitle: 'Single source of truth for developer telemetry' },
   '/tasks': { title: 'Task Kanban & Sprints', subtitle: 'Linear-grade sprint backlog & execution' },
   '/projects': { title: 'Project Workspaces', subtitle: 'Multi-repository architecture & milestones' },
   '/github': { title: 'GitHub & PR Review Queue', subtitle: 'Live repositories, commits & pending reviews' },
@@ -25,7 +26,16 @@ const routeNames: Record<string, { title: string; subtitle: string }> = {
 
 export function TopNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const current = routeNames[pathname] || { title: 'DevOS Workspace', subtitle: 'Developer Operating System' };
+
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+    } catch {}
+    router.push('/');
+    router.refresh();
+  };
 
   return (
     <header className="h-14 border-b border-white/[0.07] bg-surface-950/80 backdrop-blur-xl px-6 flex items-center justify-between shrink-0 sticky top-0 z-30">
@@ -71,6 +81,16 @@ export function TopNav() {
           <Plus className="h-3.5 w-3.5" />
           <span>Task</span>
         </Link>
+
+        {/* Sign Out Action */}
+        <button
+          onClick={handleLogout}
+          title="Sign Out"
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-surface-900 hover:bg-rose-500/10 hover:text-rose-400 text-surface-400 border border-white/[0.08] text-xs transition cursor-pointer"
+        >
+          <LogOut className="h-3.5 w-3.5" />
+          <span className="hidden md:inline">Sign Out</span>
+        </button>
       </div>
     </header>
   );
