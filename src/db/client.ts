@@ -1,27 +1,33 @@
 import { DatabaseSync } from 'node:sqlite';
-import { readFileSync } from 'node:fs';
-import { join, dirname } from 'node:path';
-import { fileURLToPath } from 'node:url';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import { existsSync, mkdirSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { SCHEMA_SQL } from './schema.ts';
 
 export const DEFAULT_USER_ID = 'usr_devos_root';
 
 export function createDatabase(dbPath: string = ':memory:'): DatabaseSync {
+  if (dbPath !== ':memory:') {
+    const dir = dirname(dbPath);
+    if (dir && dir !== '.' && !existsSync(dir)) {
+      try {
+        mkdirSync(dir, { recursive: true });
+      } catch {}
+    }
+  }
+
   const db = new DatabaseSync(dbPath);
   
   // Enable WAL mode and busy timeout for concurrent worker processes in Next.js
   if (dbPath !== ':memory:') {
-    db.exec('PRAGMA journal_mode = WAL;');
-    db.exec('PRAGMA busy_timeout = 10000;');
+    try {
+      db.exec('PRAGMA journal_mode = WAL;');
+      db.exec('PRAGMA busy_timeout = 10000;');
+    } catch {}
   }
   db.exec('PRAGMA foreign_keys = ON;');
 
-  // Ensure full schema is initialized
-  const schemaPath = join(__dirname, 'schema.sql');
-  const schemaSql = readFileSync(schemaPath, 'utf8');
-  db.exec(schemaSql);
+  // Ensure full schema is initialized directly from bundled TypeScript constant
+  db.exec(SCHEMA_SQL);
 
   // Independently verify and seed every table group
   try {
