@@ -4,8 +4,8 @@
   "description": "DevOS: The Personal Developer Operating System",
   "type": "module",
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "next dev --webpack",
+    "build": "next build --webpack",
     "start": "next start",
     "test": "NODE_ENV=test node --experimental-strip-types --test tests/**/*.test.ts",
     "lint": "next lint"

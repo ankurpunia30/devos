@@ -11,18 +11,29 @@ export const DEFAULT_USER_ID = 'usr_devos_root';
 export function createDatabase(dbPath: string = ':memory:'): DatabaseSync {
   const db = new DatabaseSync(dbPath);
   
-  // Enable foreign keys
+  // Enable WAL mode and busy timeout for concurrent worker processes in Next.js
+  if (dbPath !== ':memory:') {
+    db.exec('PRAGMA journal_mode = WAL;');
+    db.exec('PRAGMA busy_timeout = 10000;');
+  }
   db.exec('PRAGMA foreign_keys = ON;');
 
-  // Read and apply schema
-  const schemaPath = join(__dirname, 'schema.sql');
-  const schemaSql = readFileSync(schemaPath, 'utf8');
-  db.exec(schemaSql);
+  // Check if users table already exists before executing schemaSql to avoid lock contention
+  const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").get() as { name: string } | undefined;
+  if (!tableCheck) {
+    const schemaPath = join(__dirname, 'schema.sql');
+    const schemaSql = readFileSync(schemaPath, 'utf8');
+    db.exec(schemaSql);
+  }
 
   // Check if seed user exists
-  const existingUser = db.prepare('SELECT id FROM users WHERE id = ?').get(DEFAULT_USER_ID);
-  if (!existingUser) {
-    seedInitialData(db);
+  try {
+    const existingUser = db.prepare('SELECT id FROM users WHERE id = ?').get(DEFAULT_USER_ID);
+    if (!existingUser) {
+      seedInitialData(db);
+    }
+  } catch {
+    // If concurrent worker thread is seeding, ignore conflict
   }
 
   return db;

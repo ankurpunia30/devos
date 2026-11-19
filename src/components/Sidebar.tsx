@@ -6,24 +6,34 @@ import {
   LayoutDashboard,
   CheckSquare,
   FolderGit2,
-  Github,
+  GitBranch,
   Code2,
   Clock,
   Flame,
   Activity,
+  BookOpen,
+  Terminal,
+  Wrench,
   Zap,
+  Sparkles,
 } from 'lucide-react';
 import { useState } from 'react';
 
-const navigation = [
+const coreNavigation = [
   { name: 'Dashboard', href: '/', icon: LayoutDashboard },
   { name: 'Task Kanban', href: '/tasks', icon: CheckSquare },
   { name: 'Project Hub', href: '/projects', icon: FolderGit2 },
-  { name: 'GitHub & PRs', href: '/github', icon: Github },
+  { name: 'GitHub & PRs', href: '/github', icon: GitBranch },
   { name: 'LeetCode / NeetCode', href: '/dsa', icon: Code2 },
-  { name: 'My Day & Standup', href: '/daily', icon: Clock },
+  { name: 'Daily & Standup', href: '/daily', icon: Clock },
   { name: 'Heatmap & Streaks', href: '/analytics', icon: Flame },
   { name: 'Activity Stream', href: '/activities', icon: Activity },
+];
+
+const workspaceNavigation = [
+  { name: 'Knowledge Base', href: '/notes', icon: BookOpen },
+  { name: 'Snippet Vault', href: '/snippets', icon: Terminal },
+  { name: 'Developer Toolbox', href: '/toolbox', icon: Wrench },
 ];
 
 export function Sidebar() {
@@ -51,50 +61,101 @@ export function Sidebar() {
   };
 
   return (
-    <aside className="w-64 border-r border-slate-800 bg-surface-900 flex flex-col justify-between p-4 flex-shrink-0 h-screen">
-      <div className="space-y-6">
-        {/* Brand */}
-        <div className="flex items-center space-x-3 px-2">
-          <div className="h-9 w-9 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
-            <Zap className="h-5 w-5 fill-current" />
-          </div>
-          <div>
-            <h1 className="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
-              DevOS <span className="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono border border-indigo-500/20">Next.js 15</span>
-            </h1>
-            <p className="text-xs text-slate-400">Developer Operating System</p>
+    <aside className="w-64 border-r border-white/[0.07] bg-surface-950/95 backdrop-blur-2xl flex flex-col justify-between p-3.5 flex-shrink-0 h-screen select-none overflow-y-auto">
+      <div className="space-y-5">
+        {/* Brand Header */}
+        <div className="flex items-center justify-between px-2 pt-1 pb-2">
+          <div className="flex items-center space-x-2.5">
+            <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-glow-sm border border-brand-400/30">
+              <Zap className="h-4 w-4 fill-current text-white" />
+            </div>
+            <div>
+              <div className="flex items-center gap-1.5">
+                <h1 className="font-semibold text-sm tracking-tight text-white">DevOS</h1>
+                <span className="text-[9px] px-1.5 py-0.2 rounded bg-brand-500/15 text-brand-300 font-mono font-medium border border-brand-500/25">
+                  v2.0
+                </span>
+              </div>
+              <p className="text-[10px] text-surface-400 font-mono">Personal Developer OS</p>
+            </div>
           </div>
         </div>
 
-        {/* Links */}
-        <nav className="space-y-1">
-          {navigation.map((item) => {
-            const isActive = pathname === item.href;
-            const Icon = item.icon;
-            return (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                  isActive
-                    ? 'bg-slate-800 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-100 hover:bg-slate-800/50'
-                }`}
-              >
-                <Icon className={`h-4 w-4 ${isActive ? 'text-indigo-400' : 'text-slate-500'}`} />
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
-        </nav>
+        {/* Core Navigation */}
+        <div className="space-y-1">
+          <p className="px-2.5 text-[10px] font-mono uppercase tracking-wider text-surface-500 font-semibold mb-1">
+            Productivity & DSA
+          </p>
+          <nav className="space-y-0.5">
+            {coreNavigation.map((item) => {
+              const isActive = pathname === item.href;
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`group flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                    isActive
+                      ? 'bg-brand-500/15 text-brand-200 font-semibold border border-brand-500/30 shadow-sm'
+                      : 'text-surface-400 hover:text-surface-100 hover:bg-surface-900/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-brand-400' : 'text-surface-500 group-hover:text-surface-300'}`} />
+                    <span>{item.name}</span>
+                  </div>
+                  {isActive && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-400 shadow-glow-sm" />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Developer Utilities Navigation */}
+        <div className="space-y-1 pt-1">
+          <p className="px-2.5 text-[10px] font-mono uppercase tracking-wider text-surface-500 font-semibold mb-1">
+            Engineering Vault
+          </p>
+          <nav className="space-y-0.5">
+            {workspaceNavigation.map((item) => {
+              const isActive = pathname === item.href;
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`group flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                    isActive
+                      ? 'bg-brand-500/15 text-brand-200 font-semibold border border-brand-500/30 shadow-sm'
+                      : 'text-surface-400 hover:text-surface-100 hover:bg-surface-900/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-brand-400' : 'text-surface-500 group-hover:text-surface-300'}`} />
+                    <span>{item.name}</span>
+                  </div>
+                  {isActive && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-400 shadow-glow-sm" />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
       </div>
 
-      {/* Quick Capture & User */}
-      <div className="space-y-4">
-        <div className="p-3 rounded-lg bg-slate-800/40 border border-slate-700/50">
-          <div className="flex items-center justify-between text-xs text-slate-400 mb-1.5">
-            <span>Quick Capture</span>
-            <kbd className="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-mono">Enter</kbd>
+      {/* Quick Capture & User Profile */}
+      <div className="space-y-3 pt-3 border-t border-white/[0.06]">
+        {/* Quick Capture Card */}
+        <div className="p-2.5 rounded-xl bg-surface-900/70 border border-white/[0.06] shadow-specular">
+          <div className="flex items-center justify-between text-[10px] text-surface-400 mb-1 font-mono">
+            <span className="flex items-center gap-1">
+              <Sparkles className="h-3 w-3 text-brand-400" />
+              Quick Capture
+            </span>
+            <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-white/10 text-[9px] text-surface-400">↵</kbd>
           </div>
           <input
             type="text"
@@ -102,19 +163,23 @@ export function Sidebar() {
             onChange={(e) => setQuickCapture(e.target.value)}
             onKeyDown={handleQuickCapture}
             disabled={isSubmitting}
-            placeholder="Type idea or 'todo: ...'"
-            className="w-full bg-slate-950 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+            placeholder="Type idea or task..."
+            className="w-full bg-surface-950/80 border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-surface-500 focus:outline-none focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30 transition-all font-sans"
           />
         </div>
 
-        <div className="flex items-center space-x-3 px-2 pt-2 border-t border-slate-800">
-          <div className="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-xs text-white">
-            LE
+        {/* User Card */}
+        <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-surface-900/40 border border-white/[0.04]">
+          <div className="flex items-center space-x-2.5">
+            <div className="h-7 w-7 rounded-lg bg-gradient-to-tr from-brand-500 to-indigo-500 flex items-center justify-center font-bold text-[11px] text-white shadow-sm">
+              LE
+            </div>
+            <div className="text-xs overflow-hidden leading-tight">
+              <p className="font-medium text-surface-200 truncate">Lead Engineer</p>
+              <p className="text-surface-500 truncate font-mono text-[9px]">SQLite WAL Sync</p>
+            </div>
           </div>
-          <div className="text-xs overflow-hidden">
-            <p className="font-medium text-slate-200 truncate">Lead Engineer</p>
-            <p className="text-slate-500 truncate font-mono text-[10px]">usr_devos_root</p>
-          </div>
+          <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-glow-sm" title="Online" />
         </div>
       </div>
     </aside>

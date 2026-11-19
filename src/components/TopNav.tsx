@@ -1,0 +1,72 @@
+'use client';
+
+import { usePathname } from 'next/navigation';
+import { Search, Plus, Terminal, Sparkles, CheckCircle2 } from 'lucide-react';
+import Link from 'next/link';
+
+const routeNames: Record<string, { title: string; subtitle: string }> = {
+  '/': { title: 'Executive Dashboard', subtitle: 'Single source of truth for developer telemetry' },
+  '/tasks': { title: 'Task Kanban & Sprints', subtitle: 'Linear-grade sprint backlog & execution' },
+  '/projects': { title: 'Project Workspaces', subtitle: 'Multi-repository architecture & milestones' },
+  '/github': { title: 'GitHub & PR Review Queue', subtitle: 'Live repositories, commits & pending reviews' },
+  '/dsa': { title: 'NeetCode 150 Practice Matrix', subtitle: 'Curriculum mastery & spaced repetition scheduler' },
+  '/daily': { title: 'Daily Focus & Standup', subtitle: 'Pomodoro timer & 1-click grounded standup' },
+  '/analytics': { title: 'Heatmap & Contribution Streaks', subtitle: 'Cross-module engineering telemetry' },
+  '/activities': { title: 'Universal Activity Journal', subtitle: 'Auditable append-only event stream' },
+  '/notes': { title: 'Developer Knowledge Base', subtitle: 'Architecture notes, debugging & engineering memory' },
+  '/snippets': { title: 'Code Snippet Vault', subtitle: 'Reusable algorithms, commands & SQL scripts' },
+  '/toolbox': { title: 'Developer Offline Toolbox', subtitle: 'Zero-latency JSON, JWT, UUID & Base64 utilities' },
+};
+
+export function TopNav() {
+  const pathname = usePathname();
+  const current = routeNames[pathname] || { title: 'DevOS Workspace', subtitle: 'Developer Operating System' };
+
+  return (
+    <header className="h-14 border-b border-white/[0.07] bg-surface-950/80 backdrop-blur-xl px-6 flex items-center justify-between shrink-0 sticky top-0 z-30">
+      {/* Title & Subtitle */}
+      <div className="flex items-center gap-4">
+        <div>
+          <h2 className="text-sm font-semibold text-white tracking-tight flex items-center gap-2">
+            {current.title}
+          </h2>
+          <p className="text-[11px] text-surface-400 hidden md:block">
+            {current.subtitle}
+          </p>
+        </div>
+      </div>
+
+      {/* Global Actions Bar */}
+      <div className="flex items-center gap-3">
+        {/* Command Palette Trigger */}
+        <button
+          onClick={() => {
+            window.dispatchEvent(new KeyboardEvent('keydown', { key: 'k', metaKey: true }));
+          }}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-900 border border-white/[0.08] text-surface-400 hover:text-surface-200 hover:border-white/[0.15] transition-all text-xs shadow-inner"
+        >
+          <Search className="h-3.5 w-3.5 text-brand-400" />
+          <span className="hidden sm:inline">Search or jump to...</span>
+          <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-white/10 text-[9px] font-mono text-surface-400">
+            ⌘K
+          </kbd>
+        </button>
+
+        {/* Telemetry Indicator */}
+        <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-[11px] font-mono">
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+          <span>Telemetry Online</span>
+        </div>
+
+        {/* New Task Shortcut */}
+        <Link
+          href="/tasks"
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-xs font-medium shadow-glow-sm transition-all"
+        >
+          <Plus className="h-3.5 w-3.5" />
+          <span>Task</span>
+        </Link>
+      </div>
+    </header>
+  );
+}

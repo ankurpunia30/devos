@@ -1,141 +1,110 @@
-# DevOS — The Personal Developer Operating System (Phase 1 & 2 Release)
+# DevOS — The Personal Developer Operating System
 
 > **Single Source of Truth for Your Development Life**  
-> Consolidating tasks, projects, GitHub repositories, code reviews, LeetCode/NeetCode mastery, and cross-module activity heatmaps.
+> Consolidating tasks, projects, GitHub repositories, code reviews, NeetCode 150 practice, engineering knowledge, snippets, and offline developer utilities into a unified, high-density workstation.
 
 ---
 
 ## ⚡ What is DevOS?
 
-**DevOS** is an **event-driven developer operating system** that connects your software projects, sprint tasks, GitHub repositories, pull requests, coding practice, and focus sessions into one unified, grounded graph.
+**DevOS** is a **Linear/Raycast-grade Developer Operating System** built on **Next.js 16 App Router (React 19, Tailwind CSS, SQLite with WAL mode)**. It eliminates context switching across fragmented developer tools by providing one single source of truth for planning, execution, DSA practice, code reviews, technical documentation, and daily engineering rituals.
 
 ---
 
 ## 🚀 Shipped Modules & Capabilities
 
-### Phase 1: Core Productivity Foundation
-1. **Executive Dashboard (Module A)**:
-   - Reactive metrics: Current Streak, NeetCode Mastery, Open PRs, In-Flight Tasks.
-   - Interactive Top 3 Daily Rocks checklist.
-   - Active Project progress trackers with real-time percentage completion.
-   - Live 30-Day Heatmap Strip & Universal Activity feed.
-   - Global Quick Capture drawer (`todo: ...` auto-scaffolds tasks).
-2. **Unified Task Management & Kanban (Module B)**:
-   - 5-column Kanban: `Backlog`, `Todo`, `In Progress`, `Blocked`, and `Completed`.
-   - Priorities (`Critical`, `High`, `Medium`, `Low`), subtasks, tags, and project linking.
-3. **Project Management Hub (Module E)**:
-   - Project cards with tech stack badges, categories, and target completion dates.
-   - Automated completion percentage recalculated upon task transitions.
-4. **Daily Operations & Standup Generator (Module H)**:
-   - Interactive 25-minute Pomodoro timer logging directly to the activity bus.
-   - Top 3 daily rocks manager.
-   - **Automated Daily Standup Generator**: Grounded 1-click synthesis of actual database events (`Accomplishments`, `Today's Plan`, `Blockers & Risks`) with 1-click clipboard copy.
+### 1. Executive Dashboard (`/`)
+- **Real-time Telemetry Metrics**: Daily Streak, NeetCode 150 Mastery Percentage, Open Pull Requests, Active Sprint Tickets.
+- **35-Day Multi-Domain Heatstrip**: Hoverable visual strip capturing cross-domain activities (tasks, git, dsa, daily).
+- **Today's Focus & Daily Rocks**: Fast 1-click completion toggle for essential intentions.
+- **Active Projects & Workspaces**: Multi-repository workspaces with progress bars and tech stack badges.
+- **Live Universal Activity Stream**: Real-time event log with source domain badges and timestamps.
 
-### Phase 2: Developer Integrations & DSA Mastery (NEW)
-1. **GitHub Integration (Module C)**:
-   - Connect GitHub repositories with stargazers, open issues, and default branch tracking.
-   - Pull Request tracker with review state (`pending`, `approved`, `changes_requested`).
-   - Recent Git Commits timeline with commit hashes and author metadata.
-   - Linking PRs to DevOS projects and tasks.
-2. **LeetCode & NeetCode Practice Hub (Module D)**:
-   - Pre-seeded **NeetCode 150 Core Roadmap** spanning:
-     - *Arrays & Hashing*, *Two Pointers*, *Sliding Window*, *Stack*, *Binary Search*, *Trees*, *Graphs*, *Dynamic Programming*.
-   - Filter by topic and status (`Pending`, `Attempted`, `Solved`, `Needs Revision`).
-   - Automated **Spaced Repetition Scheduler**: Marking a problem `solved` automatically schedules `next_revision_date` 3 days into the future and emits `dsa.problem_solved`.
-   - Track approach notes, time complexity ($O(N)$), space complexity ($O(1)$), and submission runtimes.
-3. **Developer Activity Heatmap & Consistency (Section 5.C)**:
-   - 60-day visual contribution grid (Tasks completed + Git commits + PR merges + DSA solved + Pomodoro sessions).
-   - Current streak and longest streak counter with zero vanity gamification.
+### 2. Task Kanban & Sprints (`/tasks`)
+- **Linear-grade 5-Column Kanban**: `Backlog`, `Todo`, `In Progress`, `Blocked`, and `Completed`.
+- **Instant Workflow Navigation**: 1-click status shifts (`←`, `→`) with optimistic updates.
+- **Priority Indicators**: Critical (🔴), High (🟠), Medium (🟡), and Low (🔵).
+- **Filters & Search**: Fast client-side title/description search and priority pill filtering.
+- **Task Scaffolding Modal**: Project selection, estimated minutes, and priority selectors.
 
----
+### 3. Project Workspaces (`/projects`)
+- Multi-repository project workspaces across categories: `Personal`, `Professional`, `Learning`, and `Experimental`.
+- Milestone tracking and automated progress percentage calculation.
+- Tech stack tag arrays and target delivery dates.
 
-## 📁 Repository Structure
+### 4. GitHub Hub & PR Review Queue (`/github`)
+- Connected GitHub repositories with star counts, open issues, and default branch chips.
+- Pull Request review queue with review status badges: `Approved` (emerald), `Changes Requested` (rose), `Review Pending` (amber).
+- Commit telemetry stream with SHA hashes, author metadata, and commit timestamps.
 
-```text
-devos/
-├── .agents/
-│   ├── hooks.json                     # PreToolUse, PostToolUse, and Stop test-runner hooks
-│   ├── hooks/
-│   │   ├── pre_tool_guard.sh          # Blocks destructive shell commands (rm -rf, drops)
-│   │   ├── post_tool_format.sh        # Formatting automation hook
-│   │   └── verify_tests.sh            # Gating hook ensuring 100% passing tests before completion
-│   └── skills/
-│       ├── task-ops/                  # Task management runbook
-│       ├── standup-generator/         # Automated standup synthesis runbook
-│       ├── activity-stream/           # Activity bus telemetry runbook
-│       ├── github-sync/               # GitHub repos, commits & PR sync runbook
-│       └── dsa-tracker/               # LeetCode/NeetCode practice & spaced repetition runbook
-├── GEMINI.md                          # Antigravity architectural invariants & rules
-├── docker-compose.yml                  # PostgreSQL 16 (with pgvector) + Redis 7
-├── package.json                       # Zero external npm dependencies
-├── tsconfig.json                      # Strict NodeNext TypeScript configuration
-├── src/
-│   ├── types.ts                       # Core domain entities (Tasks, Projects, GitHub, DSA, Heatmap)
-│   ├── db/
-│   │   ├── schema.sql                 # DDL schema (PostgreSQL 16 & SQLite compatible)
-│   │   └── client.ts                  # SQLite client & starter seeds (NeetCode 150, GitHub repos)
-│   ├── domain/
-│   │   ├── activity-bus.ts            # Centralized Activity Event Bus (Pub/Sub + Persistence)
-│   │   ├── task-service.ts            # Task CRUD, status updates & dependency resolution
-│   │   ├── project-service.ts         # Project hub, milestones & auto-calculated progress %
-│   │   ├── daily-service.ts           # Top 3 daily rocks, Pomodoro & Standup Generator
-│   │   ├── github-service.ts          # Repositories, PR reviews, commits & project linking
-│   │   ├── dsa-service.ts             # NeetCode roadmap, status transitions & spaced repetition
-│   │   └── heatmap-service.ts         # 60-day cross-domain contribution aggregator & streak calculator
-│   ├── api/
-│   │   └── router.ts                  # REST API Router (/api/tasks, /api/github, /api/dsa, etc.)
-│   ├── ui/
-│   │   └── dashboard.html             # High-density Developer Console UI (Tailwind CSS)
-│   └── server.ts                      # HTTP Server entrypoint
-└── tests/
-    ├── activity-bus.test.ts           # Event emission & subscriber tests
-    ├── task-service.test.ts           # Task lifecycle & filtering tests
-    ├── project-service.test.ts        # Progress calculation & milestone tests
-    ├── daily-service.test.ts          # Standup generation & Pomodoro tests
-    ├── github-service.test.ts         # GitHub repo, PR, and commit tests
-    ├── dsa-service.test.ts            # NeetCode roadmap, spaced repetition & stats tests
-    ├── heatmap-service.test.ts        # Cross-domain heatmap & streak tests
-    └── api.test.ts                    # In-memory REST API endpoint tests
-```
+### 5. NeetCode 150 Practice Matrix (`/dsa`)
+- Pre-seeded **NeetCode 150 Core Curriculum** (Arrays & Hashing, Two Pointers, Sliding Window, Trees, Graphs, DP).
+- Topic tabs with solve count ratios (`solved/total`).
+- Spaced Repetition engine: Marking a problem `solved` automatically schedules revision 3 days into the future.
+- One-click **Solve on LeetCode** direct external navigation.
+
+### 6. Daily Workspace & Standup Generator (`/daily`)
+- **Pomodoro Deep Work Timer**: 25-minute sprint with animated visual indicator, Start/Pause/Reset, logging completed blocks to SQLite.
+- **Top 3 Daily Rocks**: Intentional daily priorities manager.
+- **Automated Grounded Standup Generator**: Synthesizes actual completed tasks, Git commits, and DSA solves into a clean 3-part Markdown standup report with 1-click clipboard copy.
+
+### 7. Heatmap & Contribution Streaks (`/analytics`)
+- 60-day interactive multi-domain contribution matrix.
+- Current streak, longest streak, and total activity counters.
+- Domain breakdown cards: Task Kanban, GitHub Sync, DSA Practice, Daily Focus.
+
+### 8. Universal Activity Journal (`/activities`)
+- Immutable, audit-ready event bus capturing state transitions across all developer domains.
+- Domain filters (Tasks, GitHub, DSA, Daily, Projects).
+
+### 9. Developer Offline Toolbox (`/toolbox`)
+- **JSON Formatter & Validator**: Beautify (indent 2) and Minify with validation error highlights.
+- **JWT Token Debugger**: Offline decoding of headers and payload claims without sending tokens over the internet.
+- **Base64 Encoder / Decoder**: Instant binary-safe conversions.
+- **UUID v4 Generator**: Cryptographically secure RFC 4122 v4 UUID generator.
+- **Unix Timestamp Converter**: Epoch seconds ↔ human-readable UTC and local time.
+
+### 10. Code Snippet Vault (`/snippets`)
+- Personal vault of reusable algorithms, Docker configurations, SQL recursive CTEs, and system design patterns.
+- Language filters (TypeScript, SQL, Python, Docker, Rust, Go, Bash).
+- 1-click copy-to-clipboard with instant visual feedback.
+
+### 11. Developer Knowledge Base (`/notes`)
+- Personal engineering memory: Architecture decisions, database schemas, debugging notes, and system design specs.
+- Markdown viewer with category filtering and tag search.
+
+### 12. Global Raycast-Style Command Palette (`⌘K`)
+- Press `⌘K` or click the search bar anywhere in the app to open the Raycast-style command palette for instant keyboard navigation across all modules and utilities.
 
 ---
 
-## 🧪 Verification & Test Suite
+## 🛠 Tech Stack
 
-DevOS is engineered to run on **Node 24** natively with **zero external npm runtime dependencies**:
-*   Uses Node native TypeScript type stripping (`--experimental-strip-types`).
-*   Uses Node native SQLite (`node:sqlite`).
-*   Uses Node native test runner (`node:test`).
+- **Framework**: Next.js 16 (App Router, React 19)
+- **Styling**: Tailwind CSS (Deep zinc obsidian palette, Linear/Raycast design language)
+- **Icons**: Lucide React
+- **Database**: SQLite (`node:sqlite`) with `WAL` mode and `busy_timeout` for concurrent worker safety
+- **Domain Architecture**: Event-driven Universal Activity Bus (`ActivityBus`) fanning out to subscribers
+- **Testing**: Node 24 native test runner (`--experimental-strip-types --test`)
 
-Run all 8 test suites:
+---
+
+## 🏃 Running the Application
+
+### 1. Run All Tests
 ```bash
-cd /Users/ankur/.gemini/antigravity/scratch/devos
 npm test
 ```
+All 8 domain and API test suites execute in ~140ms with zero mocks or live socket dependencies.
 
-```text
-✔ ActivityBus - Emits, persists, and notifies subscribers (2.5ms)
-✔ ApiRouter - Phase 1 & 2 REST endpoints verification (5.7ms)
-✔ DailyService - Priorities, Pomodoro session, and Automated Standup Generator (10.2ms)
-✔ DSAService - NeetCode roadmap, status transitions, spaced repetition, and stats (4.2ms)
-✔ GitHubService - Connect repo, record commits, and manage pull requests (3.0ms)
-✔ HeatmapService - Aggregates cross-domain activities into contribution timeline (5.9ms)
-✔ ProjectService - Milestone tracking and auto-calculated progress percentage (7.1ms)
-✔ TaskService - Full CRUD and Status Lifecycle (2.3ms)
-ℹ tests 8 | pass 8 | fail 0 (133ms)
-```
-
----
-
-## 🚀 How to Run DevOS
-
-Start the local server and UI console:
+### 2. Run Next.js Development Server
 ```bash
-cd /Users/ankur/.gemini/antigravity/scratch/devos
+npm run dev
+```
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### 3. Production Build & Start
+```bash
+npm run build
 npm start
 ```
-
-Then open your browser to:
-👉 **`http://localhost:3000`**
-
-*(Optional: Run `docker compose up -d` whenever you want to test against containerized PostgreSQL 16 with pgvector and Redis 7).*

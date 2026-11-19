@@ -12,6 +12,8 @@ dist/
 # Local databases
 *.db
 *.db-journal
+*.db-wal
+*.db-shm
 
 # Environment variables
 .env*.local
