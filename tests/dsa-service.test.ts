@@ -56,4 +56,23 @@ test('DSAService - NeetCode roadmap, status transitions, spaced repetition, and 
   assert.ok(stats.solved >= 1);
   assert.ok(stats.masteryPercentage > 0);
   assert.ok(stats.topics.length >= 8);
+
+  // 6. Dynamic Problem Creation & Bulk Import
+  const custom = service.createProblem(DEFAULT_USER_ID, {
+    title: 'Course Schedule IV',
+    slug: 'course-schedule-iv',
+    difficulty: 'medium',
+    status: 'solved',
+  });
+  assert.equal(custom.title, 'Course Schedule IV');
+  assert.equal(custom.status, 'solved');
+
+  const count = service.bulkImportProblems(DEFAULT_USER_ID, [
+    { title: 'Candy', slug: 'candy', difficulty: 'hard', status: 'solved' },
+    { title: 'Gas Station', slug: 'gas-station', difficulty: 'medium', status: 'solved' },
+  ]);
+  assert.equal(count, 2);
+
+  const updatedStats = service.getStats(DEFAULT_USER_ID);
+  assert.equal(updatedStats.total, stats.total + 3);
 });

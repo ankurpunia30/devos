@@ -6,8 +6,9 @@ export async function POST(req: Request) {
   try {
     const body = await req.json().catch(() => ({}));
     const username = body.username || undefined;
+    const sessionToken = body.sessionToken || undefined;
 
-    const result = await integrationService.syncLeetCode(DEFAULT_USER_ID, username);
+    const result = await integrationService.syncLeetCode(DEFAULT_USER_ID, username, sessionToken);
     return NextResponse.json({ success: true, data: result });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : 'Internal Server Error';

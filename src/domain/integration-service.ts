@@ -296,11 +296,16 @@ export class IntegrationService {
   }
 
   /**
-   * Live LeetCode GraphQL API Synchronization
+   * Live LeetCode Synchronization (GraphQL Profile & Optional Authenticated Session Sync)
    */
-  public async syncLeetCode(userId: string, targetUsername?: string): Promise<LeetCodeSyncResult> {
+  public async syncLeetCode(
+    userId: string,
+    targetUsername?: string,
+    sessionCookieInput?: string
+  ): Promise<LeetCodeSyncResult> {
     const integration = this.getIntegration(userId, 'leetcode');
-    const username = targetUsername || integration?.accountIdentifier || 'neal_wu';
+    const username = targetUsername || integration?.accountIdentifier || 'ankurpunia28';
+    const sessionCookie = sessionCookieInput || integration?.accessToken;
 
     const result: LeetCodeSyncResult = {
       username,
@@ -312,6 +317,72 @@ export class IntegrationService {
       problemsUpdated: 0,
     };
 
+    // 1. Dynamic Authenticated Session Sync: If LEETCODE_SESSION cookie is available,
+    // fetch the user's complete dynamic list of all solved problems directly from LeetCode API
+    if (sessionCookie && sessionCookie.length > 10) {
+      try {
+        const sessionRes = await fetch('https://leetcode.com/api/problems/all/', {
+          headers: {
+            'Cookie': `LEETCODE_SESSION=${sessionCookie}`,
+            'User-Agent': 'Mozilla/5.0 DevOS/2.0 LeetCodeSync',
+          },
+        });
+
+        if (sessionRes.ok) {
+          const allData = await sessionRes.json();
+          const pairs = allData?.stat_status_pairs;
+          if (Array.isArray(pairs)) {
+            const acProblems = pairs.filter((p: any) => p.status === 'ac');
+            result.totalSolved = acProblems.length;
+
+            const now = new Date().toISOString();
+            for (const item of acProblems) {
+              const diffLevel = item.difficulty?.level;
+              const diff = diffLevel === 1 ? 'easy' : diffLevel === 2 ? 'medium' : 'hard';
+              if (diff === 'easy') result.easySolved++;
+              if (diff === 'medium') result.mediumSolved++;
+              if (diff === 'hard') result.hardSolved++;
+
+              const title = item.stat?.question__title;
+              const slug = item.stat?.question__title_slug;
+              if (title && slug) {
+                const existing = this.db.prepare(
+                  'SELECT id FROM dsa_problems WHERE user_id = ? AND slug = ?'
+                ).get(userId, slug) as { id: string } | undefined;
+
+                if (existing) {
+                  this.db.prepare(
+                    "UPDATE dsa_problems SET status = 'solved', last_solved_at = COALESCE(last_solved_at, ?) WHERE id = ?"
+                  ).run(now, existing.id);
+                } else {
+                  this.db.prepare(`
+                    INSERT INTO dsa_problems (
+                      id, user_id, topic_id, title, slug, difficulty,
+                      leetcode_url, neetcode_roadmap_flag, status,
+                      created_at, last_solved_at
+                    ) VALUES (?, ?, 'arrays-hashing', ?, ?, ?, ?, 0, 'solved', ?, ?)
+                  `).run(
+                    `dsa_lc_${item.stat.frontend_question_id || item.stat.question_id}`,
+                    userId,
+                    title,
+                    slug,
+                    diff,
+                    `https://leetcode.com/problems/${slug}/`,
+                    now,
+                    now
+                  );
+                }
+                result.problemsUpdated++;
+              }
+            }
+          }
+        }
+      } catch (sessionErr) {
+        // Fall through to public profile sync if session call fails
+      }
+    }
+
+    // 2. Public GraphQL Profile & Recent Submissions Sync
     const graphqlQuery = `
       query getUserProfile($username: String!) {
         matchedUser(username: $username) {
@@ -346,60 +417,55 @@ export class IntegrationService {
         }),
       });
 
-      if (!res.ok) {
-        throw new Error(`LeetCode GraphQL returned HTTP ${res.status}`);
-      }
-
-      const body = await res.json();
-      const stats = body?.data?.matchedUser?.submitStatsGlobal?.acSubmissionNum;
-      if (Array.isArray(stats)) {
-        for (const item of stats) {
-          if (item.difficulty === 'All') result.totalSolved = item.count;
-          if (item.difficulty === 'Easy') result.easySolved = item.count;
-          if (item.difficulty === 'Medium') result.mediumSolved = item.count;
-          if (item.difficulty === 'Hard') result.hardSolved = item.count;
-        }
-      }
-
-      // Process recent submissions to update NeetCode roadmap
-      const recentList = body?.data?.recentSubmissionList;
-      if (Array.isArray(recentList)) {
-        result.recentSubmissionsProcessed = recentList.length;
-
-        for (const sub of recentList) {
-          if (sub.statusDisplay === 'Accepted') {
-            // Check if matching problem exists in DevOS SQLite
-            const matchedProb = this.db.prepare(`
-              SELECT id, title, status FROM dsa_problems
-              WHERE user_id = ? AND (slug = ? OR LOWER(title) = LOWER(?))
-            `).get(userId, sub.titleSlug, sub.title) as { id: string; title: string; status: string } | undefined;
-
-            if (matchedProb && matchedProb.status !== 'solved') {
-              this.dsaService.updateProblem(matchedProb.id, userId, {
-                status: 'solved',
-              });
-              result.problemsUpdated++;
-            }
+      if (res.ok) {
+        const body = await res.json();
+        const stats = body?.data?.matchedUser?.submitStatsGlobal?.acSubmissionNum;
+        if (Array.isArray(stats)) {
+          for (const item of stats) {
+            if (item.difficulty === 'All') result.totalSolved = Math.max(result.totalSolved, item.count);
+            if (item.difficulty === 'Easy') result.easySolved = Math.max(result.easySolved, item.count);
+            if (item.difficulty === 'Medium') result.mediumSolved = Math.max(result.mediumSolved, item.count);
+            if (item.difficulty === 'Hard') result.hardSolved = Math.max(result.hardSolved, item.count);
           }
         }
-      }
 
-      // If user has substantial solve history (>100 solved problems), auto-verify roadmap problems
-      if (result.totalSolved >= 100) {
-        const pendingProblems = this.db.prepare(`
-          SELECT id, difficulty, status FROM dsa_problems
-          WHERE user_id = ? AND status != 'solved'
-        `).all(userId) as Array<{ id: string; difficulty: string; status: string }>;
+        // Process recent submissions to update or add dynamically
+        const recentList = body?.data?.recentSubmissionList;
+        if (Array.isArray(recentList)) {
+          result.recentSubmissionsProcessed = recentList.length;
 
-        for (const p of pendingProblems) {
-          let shouldSolve = false;
-          if (p.difficulty === 'easy' && result.easySolved >= 20) shouldSolve = true;
-          if (p.difficulty === 'medium' && result.mediumSolved >= 50) shouldSolve = true;
-          if (p.difficulty === 'hard' && result.hardSolved >= 20) shouldSolve = true;
+          for (const sub of recentList) {
+            if (sub.statusDisplay === 'Accepted') {
+              const matchedProb = this.db.prepare(`
+                SELECT id, title, status FROM dsa_problems
+                WHERE user_id = ? AND (slug = ? OR LOWER(title) = LOWER(?))
+              `).get(userId, sub.titleSlug, sub.title) as { id: string; title: string; status: string } | undefined;
 
-          if (shouldSolve) {
-            this.dsaService.updateProblem(p.id, userId, { status: 'solved' });
-            result.problemsUpdated++;
+              if (matchedProb) {
+                if (matchedProb.status !== 'solved') {
+                  this.dsaService.updateProblem(matchedProb.id, userId, { status: 'solved' });
+                  result.problemsUpdated++;
+                }
+              } else {
+                // Dynamically record newly discovered solved problem from submission stream
+                this.db.prepare(`
+                  INSERT INTO dsa_problems (
+                    id, user_id, topic_id, title, slug, difficulty,
+                    leetcode_url, neetcode_roadmap_flag, status,
+                    created_at, last_solved_at
+                  ) VALUES (?, ?, 'arrays-hashing', ?, ?, 'medium', ?, 0, 'solved', ?, ?)
+                `).run(
+                  `dsa_sub_${sub.titleSlug}`,
+                  userId,
+                  sub.title,
+                  sub.titleSlug,
+                  `https://leetcode.com/problems/${sub.titleSlug}/`,
+                  new Date().toISOString(),
+                  new Date(sub.timestamp * 1000).toISOString()
+                );
+                result.problemsUpdated++;
+              }
+            }
           }
         }
       }
@@ -426,7 +492,7 @@ export class IntegrationService {
         eventType: 'dsa.submission_logged',
         sourceDomain: 'dsa',
         title: `Synced LeetCode profile @${username}`,
-        description: `Verified ${result.totalSolved} solved problems (${result.problemsUpdated} updated in NeetCode roadmap)`,
+        description: `Verified ${result.totalSolved} solved problems (${result.problemsUpdated} updated in database)`,
       });
 
     } catch (err: unknown) {
@@ -439,18 +505,6 @@ export class IntegrationService {
           result.easySolved = meta.easy || 0;
           result.mediumSolved = meta.medium || 0;
           result.hardSolved = meta.hard || 0;
-
-          if (result.totalSolved >= 100) {
-            const pendingProblems = this.db.prepare(`
-              SELECT id, difficulty, status FROM dsa_problems
-              WHERE user_id = ? AND status != 'solved'
-            `).all(userId) as Array<{ id: string; difficulty: string; status: string }>;
-
-            for (const p of pendingProblems) {
-              this.dsaService.updateProblem(p.id, userId, { status: 'solved' });
-              result.problemsUpdated++;
-            }
-          }
         } catch {}
       }
 
@@ -459,7 +513,7 @@ export class IntegrationService {
         eventType: 'dsa.submission_logged',
         sourceDomain: 'dsa',
         title: `LeetCode Sync Completed: @${username}`,
-        description: `Verified ${result.totalSolved} solved problems (${result.problemsUpdated} updated in NeetCode roadmap)`,
+        description: `Verified ${result.totalSolved} solved problems (${result.problemsUpdated} updated in database)`,
       });
     }
 

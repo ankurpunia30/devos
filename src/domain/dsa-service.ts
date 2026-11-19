@@ -159,6 +159,140 @@ export class DSAService {
     };
   }
 
+  public bulkImportProblems(userId: string, problems: Array<{
+    title: string;
+    slug: string;
+    difficulty: DSADifficulty;
+    topicId?: string;
+    leetcodeUrl?: string;
+    neetcodeRoadmapFlag?: boolean;
+    status?: DSAStatus;
+  }>): number {
+    const now = new Date().toISOString();
+
+    const insertProb = this.db.prepare(`
+      INSERT INTO dsa_problems (
+        id, user_id, topic_id, title, slug, difficulty,
+        leetcode_url, neetcode_roadmap_flag, status,
+        created_at, last_solved_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      ON CONFLICT(id) DO UPDATE SET
+        status = excluded.status,
+        last_solved_at = excluded.last_solved_at
+    `);
+
+    let count = 0;
+    for (const p of problems) {
+      const existing = this.db.prepare(`
+        SELECT id FROM dsa_problems WHERE user_id = ? AND slug = ?
+      `).get(userId, p.slug) as { id: string } | undefined;
+
+      const id = existing ? existing.id : `dsa_${randomUUID()}`;
+      const status = p.status || 'solved';
+      const isSolved = status === 'solved' || status === 'revision_needed';
+      const leetcodeUrl = p.leetcodeUrl || `https://leetcode.com/problems/${p.slug}/`;
+
+      const topicId = p.topicId || 'arrays-hashing';
+      if (existing) {
+        this.db.prepare(`
+          UPDATE dsa_problems SET status = ?, last_solved_at = COALESCE(last_solved_at, ?)
+          WHERE id = ?
+        `).run(status, isSolved ? now : null, existing.id);
+      } else {
+        insertProb.run(
+          id,
+          userId,
+          topicId,
+          p.title,
+          p.slug,
+          p.difficulty,
+          leetcodeUrl,
+          p.neetcodeRoadmapFlag ? 1 : 0,
+          status,
+          now,
+          isSolved ? now : null
+        );
+      }
+      count++;
+    }
+
+    this.activityBus.emit({
+      userId,
+      eventType: 'dsa.problem_solved',
+      sourceDomain: 'dsa',
+      title: `Imported ${count} Solved Problems into DevOS`,
+      description: `Synchronized ${count} problem records into local database.`,
+    });
+
+    return count;
+  }
+
+  public createProblem(userId: string, data: {
+    topicId?: string;
+    title: string;
+    slug: string;
+    difficulty: DSADifficulty;
+    leetcodeUrl?: string;
+    neetcodeRoadmapFlag?: boolean;
+    status?: DSAStatus;
+    notes?: string;
+    approachSummary?: string;
+    timeComplexity?: string;
+    spaceComplexity?: string;
+  }): DSAProblem {
+    const id = `dsa_${randomUUID()}`;
+    const now = new Date().toISOString();
+    const leetcodeUrl = data.leetcodeUrl || `https://leetcode.com/problems/${data.slug}/`;
+    const status = data.status || 'solved';
+    const isSolved = status === 'solved' || status === 'revision_needed';
+
+    const topicId = data.topicId || 'arrays-hashing';
+
+    this.db.prepare(`
+      INSERT INTO dsa_problems (
+        id, user_id, topic_id, title, slug, difficulty,
+        leetcode_url, neetcode_roadmap_flag, status,
+        notes, approach_summary, time_complexity, space_complexity,
+        created_at, last_solved_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      id,
+      userId,
+      topicId,
+      data.title,
+      data.slug,
+      data.difficulty,
+      leetcodeUrl,
+      data.neetcodeRoadmapFlag ? 1 : 0,
+      status,
+      data.notes || null,
+      data.approachSummary || null,
+      data.timeComplexity || null,
+      data.spaceComplexity || null,
+      now,
+      isSolved ? now : null
+    );
+
+    return {
+      id,
+      userId,
+      topicId: data.topicId || '',
+      title: data.title,
+      slug: data.slug,
+      difficulty: data.difficulty,
+      leetcodeUrl,
+      neetcodeRoadmapFlag: Boolean(data.neetcodeRoadmapFlag),
+      status,
+      notes: data.notes,
+      approachSummary: data.approachSummary,
+      timeComplexity: data.timeComplexity,
+      spaceComplexity: data.spaceComplexity,
+      nextRevisionDate: null,
+      lastSolvedAt: isSolved ? now : null,
+      createdAt: now,
+    };
+  }
+
   public getStats(userId: string): DSAStats {
     const totalRow = this.db.prepare('SELECT COUNT(*) as total FROM dsa_problems WHERE user_id = ?').get(userId) as any;
     const solvedRow = this.db.prepare("SELECT COUNT(*) as solved FROM dsa_problems WHERE user_id = ? AND status IN ('solved', 'revision_needed')").get(userId) as any;

@@ -32,6 +32,7 @@ export default function IntegrationsPage() {
 
   // LeetCode state
   const [leetcodeUsername, setLeetcodeUsername] = useState('');
+  const [leetcodeSessionCookie, setLeetcodeSessionCookie] = useState('');
   const [leetcodeSyncing, setLeetcodeSyncing] = useState(false);
   const [leetcodeResult, setLeetcodeResult] = useState<string | null>(null);
 
@@ -120,6 +121,7 @@ export default function IntegrationsPage() {
         body: JSON.stringify({
           provider: 'leetcode',
           accountIdentifier: leetcodeUsername.trim(),
+          accessToken: leetcodeSessionCookie.trim() || undefined,
         }),
       });
 
@@ -127,7 +129,10 @@ export default function IntegrationsPage() {
       const syncRes = await fetch('/api/integrations/leetcode/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: leetcodeUsername.trim() }),
+        body: JSON.stringify({
+          username: leetcodeUsername.trim(),
+          sessionToken: leetcodeSessionCookie.trim() || undefined,
+        }),
       });
       const syncData = await syncRes.json();
 
@@ -316,6 +321,26 @@ export default function IntegrationsPage() {
               />
               <p className="text-[10px] text-surface-500 font-mono pt-0.5">
                 Uses LeetCode&apos;s official public GraphQL profile endpoint (<code className="text-amber-300">leetcode.com/graphql</code>).
+              </p>
+            </div>
+
+            <div className="space-y-1">
+              <label className="text-[11px] font-mono text-surface-400 flex items-center justify-between">
+                <span>Optional: LEETCODE_SESSION Cookie</span>
+                <span className="text-amber-400/90 text-[10px]">For syncing all 900+ solved titles</span>
+              </label>
+              <div className="relative">
+                <Key className="h-3.5 w-3.5 text-surface-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <input
+                  type="password"
+                  value={leetcodeSessionCookie}
+                  onChange={(e) => setLeetcodeSessionCookie(e.target.value)}
+                  placeholder="Paste LEETCODE_SESSION cookie to dynamically fetch every AC problem..."
+                  className="w-full pl-9 pr-3 py-2 bg-surface-950 border border-white/[0.08] rounded-xl text-xs text-white placeholder-surface-500 focus:outline-none focus:border-brand-500 font-mono"
+                />
+              </div>
+              <p className="text-[10px] text-surface-500 font-mono pt-0.5">
+                Optional. Required only if you want DevOS to query LeetCode&apos;s private API to pull every historical problem name beyond the recent 20.
               </p>
             </div>
 
