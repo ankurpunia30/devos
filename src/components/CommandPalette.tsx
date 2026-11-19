@@ -17,6 +17,10 @@ import {
   Wrench,
   ArrowRight,
   Sparkles,
+  Briefcase,
+  Layers,
+  Rocket,
+  Bot,
 } from 'lucide-react';
 
 interface CommandItem {
@@ -46,6 +50,10 @@ export function CommandPalette() {
     { id: 'notes', title: 'Developer Knowledge Base', category: 'Navigation', icon: BookOpen, href: '/notes' },
     { id: 'snippets', title: 'Code Snippet Vault', category: 'Navigation', icon: Terminal, href: '/snippets' },
     { id: 'toolbox', title: 'Developer Offline Toolbox', category: 'Navigation', icon: Wrench, href: '/toolbox' },
+    { id: 'career', title: 'Career & Interview Management', category: 'Navigation', icon: Briefcase, href: '/career' },
+    { id: 'architecture', title: 'Architecture Decision Records (ADRs)', category: 'Navigation', icon: Layers, href: '/architecture' },
+    { id: 'deployments', title: 'Environments & Deployment Log', category: 'Navigation', icon: Rocket, href: '/deployments' },
+    { id: 'assistant', title: 'Contextual AI & Grounded Q&A', category: 'Navigation', icon: Bot, href: '/assistant' },
     { id: 'new-task', title: 'Create New Task', category: 'Actions', icon: CheckSquare, shortcut: 'N', href: '/tasks?create=true' },
     { id: 'standup', title: 'Generate Standup Report', category: 'Actions', icon: Sparkles, href: '/daily' },
     { id: 'jwt', title: 'JWT Token Debugger', category: 'Utilities', icon: Wrench, href: '/toolbox?tool=jwt' },

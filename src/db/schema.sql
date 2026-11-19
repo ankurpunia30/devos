@@ -193,3 +193,70 @@ CREATE TABLE IF NOT EXISTS dsa_submissions (
     memory_mb REAL,
     submitted_at TEXT NOT NULL
 );
+
+-- ==========================================
+-- Phase 4: Career & Interview Tables
+-- ==========================================
+CREATE TABLE IF NOT EXISTS career_applications (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    company TEXT NOT NULL,
+    role TEXT NOT NULL,
+    stage TEXT DEFAULT 'applied' CHECK (stage IN ('wishlist', 'applied', 'screening', 'technical', 'behavioral', 'offer', 'rejected')),
+    salary_range TEXT,
+    location TEXT,
+    applied_date TEXT,
+    next_interview_date TEXT,
+    notes TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS career_questions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    company TEXT,
+    question TEXT NOT NULL,
+    category TEXT DEFAULT 'technical' CHECK (category IN ('technical', 'behavioral', 'system_design')),
+    star_situation TEXT,
+    star_task TEXT,
+    star_action TEXT,
+    star_result TEXT,
+    notes TEXT,
+    created_at TEXT NOT NULL
+);
+
+-- ==========================================
+-- Phase 4: Architecture Decision Records (ADRs)
+-- ==========================================
+CREATE TABLE IF NOT EXISTS architecture_decisions (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+    adr_number INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    status TEXT DEFAULT 'accepted' CHECK (status IN ('proposed', 'accepted', 'deprecated', 'superseded')),
+    context TEXT NOT NULL,
+    decision TEXT NOT NULL,
+    consequences TEXT NOT NULL,
+    mermaid_diagram TEXT,
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE(user_id, adr_number)
+);
+
+-- ==========================================
+-- Phase 4: Environment & Deployments
+-- ==========================================
+CREATE TABLE IF NOT EXISTS deployments (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+    environment TEXT NOT NULL CHECK (environment IN ('local', 'dev', 'staging', 'prod')),
+    version_tag TEXT NOT NULL,
+    commit_sha TEXT,
+    status TEXT DEFAULT 'healthy' CHECK (status IN ('healthy', 'degraded', 'down', 'deploying')),
+    rollback_plan TEXT,
+    deployed_at TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);

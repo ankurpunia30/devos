@@ -16,6 +16,10 @@ import {
   Wrench,
   Zap,
   Sparkles,
+  Briefcase,
+  Layers,
+  Rocket,
+  Bot,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -28,6 +32,13 @@ const coreNavigation = [
   { name: 'Daily & Standup', href: '/daily', icon: Clock },
   { name: 'Heatmap & Streaks', href: '/analytics', icon: Flame },
   { name: 'Activity Stream', href: '/activities', icon: Activity },
+];
+
+const lifecycleNavigation = [
+  { name: 'Career & Prep', href: '/career', icon: Briefcase },
+  { name: 'Architecture ADRs', href: '/architecture', icon: Layers },
+  { name: 'Deployments', href: '/deployments', icon: Rocket },
+  { name: 'Grounded AI', href: '/assistant', icon: Bot },
 ];
 
 const workspaceNavigation = [
@@ -62,9 +73,9 @@ export function Sidebar() {
 
   return (
     <aside className="w-64 border-r border-white/[0.07] bg-surface-950/95 backdrop-blur-2xl flex flex-col justify-between p-3.5 flex-shrink-0 h-screen select-none overflow-y-auto">
-      <div className="space-y-5">
+      <div className="space-y-4">
         {/* Brand Header */}
-        <div className="flex items-center justify-between px-2 pt-1 pb-2">
+        <div className="flex items-center justify-between px-2 pt-1 pb-1">
           <div className="flex items-center space-x-2.5">
             <div className="h-8 w-8 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-400 flex items-center justify-center font-bold text-white shadow-glow-sm border border-brand-400/30">
               <Zap className="h-4 w-4 fill-current text-white" />
@@ -94,7 +105,39 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`group flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                    isActive
+                      ? 'bg-brand-500/15 text-brand-200 font-semibold border border-brand-500/30 shadow-sm'
+                      : 'text-surface-400 hover:text-surface-100 hover:bg-surface-900/60'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-brand-400' : 'text-surface-500 group-hover:text-surface-300'}`} />
+                    <span>{item.name}</span>
+                  </div>
+                  {isActive && (
+                    <span className="h-1.5 w-1.5 rounded-full bg-brand-400 shadow-glow-sm" />
+                  )}
+                </Link>
+              );
+            })}
+          </nav>
+        </div>
+
+        {/* Engineering Lifecycle Navigation */}
+        <div className="space-y-1 pt-1">
+          <p className="px-2.5 text-[10px] font-mono uppercase tracking-wider text-surface-500 font-semibold mb-1">
+            Lifecycle & Intelligence
+          </p>
+          <nav className="space-y-0.5">
+            {lifecycleNavigation.map((item) => {
+              const isActive = pathname === item.href;
+              const Icon = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
                     isActive
                       ? 'bg-brand-500/15 text-brand-200 font-semibold border border-brand-500/30 shadow-sm'
                       : 'text-surface-400 hover:text-surface-100 hover:bg-surface-900/60'
@@ -126,7 +169,7 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`group flex items-center justify-between px-2.5 py-2 rounded-lg text-xs font-medium transition-all duration-150 ${
+                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
                     isActive
                       ? 'bg-brand-500/15 text-brand-200 font-semibold border border-brand-500/30 shadow-sm'
                       : 'text-surface-400 hover:text-surface-100 hover:bg-surface-900/60'
@@ -176,7 +219,7 @@ export function Sidebar() {
             </div>
             <div className="text-xs overflow-hidden leading-tight">
               <p className="font-medium text-surface-200 truncate">Lead Engineer</p>
-              <p className="text-surface-500 truncate font-mono text-[9px]">SQLite WAL Sync</p>
+              <p className="text-surface-500 truncate font-mono text-[9px]">SQLite WAL Active</p>
             </div>
           </div>
           <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-glow-sm" title="Online" />

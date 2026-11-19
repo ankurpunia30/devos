@@ -240,3 +240,76 @@ export interface HeatmapStats {
   longestStreak: number;
   totalContributions: number;
 }
+
+// ==========================================
+// Phase 4: Career & Interview Track Types
+// ==========================================
+export type CareerStage = 'wishlist' | 'applied' | 'screening' | 'technical' | 'behavioral' | 'offer' | 'rejected';
+
+export interface CareerApplication {
+  id: string;
+  userId: string;
+  company: string;
+  role: string;
+  stage: CareerStage;
+  salaryRange?: string;
+  location?: string;
+  appliedDate?: string;
+  nextInterviewDate?: string | null;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CareerQuestion {
+  id: string;
+  userId: string;
+  company?: string;
+  question: string;
+  category: 'technical' | 'behavioral' | 'system_design';
+  starSituation?: string;
+  starTask?: string;
+  starAction?: string;
+  starResult?: string;
+  notes?: string;
+  createdAt: string;
+}
+
+// ==========================================
+// Phase 4: Architecture & ADR Types
+// ==========================================
+export type ADRStatus = 'proposed' | 'accepted' | 'deprecated' | 'superseded';
+
+export interface ArchitectureDecision {
+  id: string;
+  userId: string;
+  projectId?: string | null;
+  adrNumber: number;
+  title: string;
+  status: ADRStatus;
+  context: string;
+  decision: string;
+  consequences: string;
+  mermaidDiagram?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// ==========================================
+// Phase 4: Environment & Deployments Types
+// ==========================================
+export type DeploymentEnvironment = 'local' | 'dev' | 'staging' | 'prod';
+export type DeploymentStatus = 'healthy' | 'degraded' | 'down' | 'deploying';
+
+export interface Deployment {
+  id: string;
+  userId: string;
+  projectId?: string | null;
+  environment: DeploymentEnvironment;
+  versionTag: string;
+  commitSha?: string;
+  status: DeploymentStatus;
+  rollbackPlan?: string;
+  deployedAt: string;
+  createdAt: string;
+}

@@ -16,6 +16,10 @@ const routeNames: Record<string, { title: string; subtitle: string }> = {
   '/notes': { title: 'Developer Knowledge Base', subtitle: 'Architecture notes, debugging & engineering memory' },
   '/snippets': { title: 'Code Snippet Vault', subtitle: 'Reusable algorithms, commands & SQL scripts' },
   '/toolbox': { title: 'Developer Offline Toolbox', subtitle: 'Zero-latency JSON, JWT, UUID & Base64 utilities' },
+  '/career': { title: 'Career & Interview Management', subtitle: 'Target pipeline, offer negotiation & STAR behavioral questions' },
+  '/architecture': { title: 'Architecture Decision Records (ADRs)', subtitle: 'Immutable architectural trade-offs, schemas & Mermaid diagrams' },
+  '/deployments': { title: 'Environments & Deployment Telemetry', subtitle: 'Multi-stage release log & automated rollback targets' },
+  '/assistant': { title: 'Contextual AI & Grounded Intelligence', subtitle: 'Deterministic natural-language task extraction & zero-hallucination Q&A' },
 };
 
 export function TopNav() {

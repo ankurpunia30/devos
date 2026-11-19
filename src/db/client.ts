@@ -18,8 +18,8 @@ export function createDatabase(dbPath: string = ':memory:'): DatabaseSync {
   }
   db.exec('PRAGMA foreign_keys = ON;');
 
-  // Check if users table already exists before executing schemaSql to avoid lock contention
-  const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='users'").get() as { name: string } | undefined;
+  // Check if deployments table already exists before executing schemaSql to avoid lock contention
+  const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='deployments'").get() as { name: string } | undefined;
   if (!tableCheck) {
     const schemaPath = join(__dirname, 'schema.sql');
     const schemaSql = readFileSync(schemaPath, 'utf8');
@@ -354,4 +354,160 @@ function seedInitialData(db: DatabaseSync) {
       isSolved ? now : null
     );
   }
+
+  // 7. Career Applications
+  const insertCareerApp = db.prepare(`
+    INSERT INTO career_applications (id, user_id, company, role, stage, salary_range, location, applied_date, next_interview_date, notes, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  insertCareerApp.run(
+    'app_1',
+    DEFAULT_USER_ID,
+    'Stripe',
+    'Principal Infrastructure Engineer',
+    'offer',
+    '$420,000 - $480,000',
+    'San Francisco / Remote',
+    '2026-10-15',
+    null,
+    'Offer received. Discussing signing equity grant and remote flexibility.',
+    now,
+    now
+  );
+  insertCareerApp.run(
+    'app_2',
+    DEFAULT_USER_ID,
+    'Google',
+    'Staff Software Engineer (Cloud Spanner)',
+    'technical',
+    '$380,000 - $440,000',
+    'Mountain View / Hybrid',
+    '2026-10-28',
+    '2026-11-26',
+    'System design & coding round 3 scheduled. Review distributed consensus and Raft.',
+    now,
+    now
+  );
+  insertCareerApp.run(
+    'app_3',
+    DEFAULT_USER_ID,
+    'Databricks',
+    'Senior Distributed Storage Engineer',
+    'screening',
+    '$340,000 - $390,000',
+    'Seattle / Remote',
+    '2026-11-05',
+    '2026-11-24',
+    'Initial technical recruiter screening completed. Preparing for Lakehouse architecture deep-dive.',
+    now,
+    now
+  );
+
+  // 8. Career STAR Questions
+  const insertQuestion = db.prepare(`
+    INSERT INTO career_questions (id, user_id, company, question, category, star_situation, star_task, star_action, star_result, notes, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  insertQuestion.run(
+    'q_1',
+    DEFAULT_USER_ID,
+    'Google',
+    'Tell me about a high-severity production outage you mitigated under high pressure.',
+    'behavioral',
+    'During peak traffic, a Redis cluster split-brain event triggered cascading timeouts across payment checkout services.',
+    'Halt cascading failovers and restore cache consistency without dropping in-flight credit card authorizations.',
+    'Engaged read-through circuit breakers to fall back to read-replicas, applied rate limiting to non-critical traffic, and rebuilt the partitioned shard.',
+    'Payment API P99 latency dropped from 9.2s back to 45ms within 4 minutes. Zero financial transactions lost.',
+    'Frequently asked in Staff+ behavioral rounds.',
+    now
+  );
+  insertQuestion.run(
+    'q_2',
+    DEFAULT_USER_ID,
+    'Stripe',
+    'Design an idempotent distributed payment processing engine with zero double-charge risk.',
+    'system_design',
+    'Network timeouts and retry storms can cause payment webhook duplicate executions.',
+    'Ensure exactly-once semantics for payment intents even across server crashes and network retransmits.',
+    'Used unique client idempotency keys combined with PostgreSQL row-level locks and Redis distributed locks.',
+    'Achieved 100% financial transaction deduplication across millions of daily API calls.',
+    'Deep dive into two-phase commit vs Saga pattern.',
+    now
+  );
+
+  // 9. Architecture Decision Records (ADRs)
+  const insertAdr = db.prepare(`
+    INSERT INTO architecture_decisions (id, user_id, project_id, adr_number, title, status, context, decision, consequences, mermaid_diagram, created_at, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  insertAdr.run(
+    'adr_1',
+    DEFAULT_USER_ID,
+    'proj_1',
+    1,
+    'Adopt Event-Driven Activity Bus over Database Polling',
+    'accepted',
+    'Multiple modules (tasks, projects, github, standup, heatmap) require real-time synchronization upon state changes.',
+    'Implement a lightweight in-process pub/sub ActivityBus that persists events to SQLite and notifies listeners asynchronously.',
+    'Eliminates polling overhead, ensures auditability, and provides zero-latency reactivity.',
+    'graph LR\n  Task[Task Service] --> Bus[Activity Bus]\n  Bus --> DB[(SQLite Activities)]\n  Bus --> Heatmap[Heatmap Engine]\n  Bus --> Standup[Standup Generator]',
+    now,
+    now
+  );
+  insertAdr.run(
+    'adr_2',
+    DEFAULT_USER_ID,
+    'proj_1',
+    2,
+    'Use SQLite in WAL Mode for Single-Tenant Zero-Latency Storage',
+    'accepted',
+    'DevOS requires a single source of truth that runs completely locally without external cloud dependencies or network latency.',
+    'Use Node 24 native node:sqlite with Write-Ahead Logging (WAL) and busy_timeout=10000ms.',
+    'Zero docker dependencies required, sub-millisecond query latencies, safe across concurrent Next.js worker threads.',
+    null,
+    now,
+    now
+  );
+
+  // 10. Deployments & Environments
+  const insertDeploy = db.prepare(`
+    INSERT INTO deployments (id, user_id, project_id, environment, version_tag, commit_sha, status, rollback_plan, deployed_at, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  insertDeploy.run(
+    'dep_1',
+    DEFAULT_USER_ID,
+    'proj_1',
+    'prod',
+    'v2.0.0',
+    'a4b5d89',
+    'healthy',
+    'Rollback target: v1.9.4. Run: git checkout v1.9.4 && npm run build && pm2 reload devos-prod',
+    new Date(Date.now() - 3600000 * 4).toISOString(),
+    now
+  );
+  insertDeploy.run(
+    'dep_2',
+    DEFAULT_USER_ID,
+    'proj_1',
+    'staging',
+    'v2.1.0-rc2',
+    'd81e3a9',
+    'healthy',
+    'Rollback target: v2.0.0',
+    new Date(Date.now() - 3600000 * 12).toISOString(),
+    now
+  );
+  insertDeploy.run(
+    'dep_3',
+    DEFAULT_USER_ID,
+    'proj_1',
+    'dev',
+    'v2.2.0-nightly',
+    'f491c01',
+    'deploying',
+    'Automatic trunk branch re-deployment upon git push.',
+    new Date().toISOString(),
+    now
+  );
 }
