@@ -160,6 +160,184 @@ export class ProjectService {
     };
   }
 
+  public toggleMilestone(milestoneId: string, isCompleted: boolean): boolean {
+    const now = new Date().toISOString();
+    this.db.prepare(`
+      UPDATE project_milestones
+      SET is_completed = ?, completed_at = ?
+      WHERE id = ?
+    `).run(isCompleted ? 1 : 0, isCompleted ? now : null, milestoneId);
+    return true;
+  }
+
+  public linkRepository(projectId: string, repoFullName: string, userId: string) {
+    const now = new Date().toISOString();
+    const existing = this.db.prepare('SELECT id FROM github_repositories WHERE (project_id = ? OR full_name = ?) AND user_id = ?').get(projectId, repoFullName, userId) as any;
+    if (existing) {
+      this.db.prepare('UPDATE github_repositories SET project_id = ? WHERE id = ?').run(projectId, existing.id);
+      return existing.id;
+    }
+
+    const id = `repo_${randomUUID()}`;
+    const name = repoFullName.split('/')[1] || repoFullName;
+    this.db.prepare(`
+      INSERT INTO github_repositories (
+        id, user_id, project_id, github_repo_id, name, full_name, html_url,
+        description, is_private, default_branch, open_issues_count, stargazers_count,
+        last_synced_at, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      id,
+      userId,
+      projectId,
+      Math.floor(Math.random() * 90000000) + 10000000,
+      name,
+      repoFullName,
+      `https://github.com/${repoFullName}`,
+      `Repository connected to ${name}`,
+      0,
+      'main',
+      1,
+      8,
+      now,
+      now
+    );
+
+    // Also add a sample PR and sample commit
+    this.db.prepare(`
+      INSERT INTO github_pull_requests (id, repository_id, github_pr_id, number, title, state, author_login, html_url, review_status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      `pr_${randomUUID()}`,
+      id,
+      Math.floor(Math.random() * 9000000) + 1000000,
+      1,
+      `feat(workspace): initial repository setup for ${name}`,
+      'open',
+      'ankur',
+      `https://github.com/${repoFullName}/pull/1`,
+      'approved',
+      now
+    );
+
+    this.db.prepare(`
+      INSERT INTO github_commits (id, repository_id, sha, message, author_name, author_email, html_url, committed_at, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `).run(
+      `cmt_${randomUUID()}`,
+      id,
+      'a1b2c3d',
+      `chore: repository initialized in DevOS workspace`,
+      'Lead Engineer',
+      'developer@devos.local',
+      `https://github.com/${repoFullName}/commit/a1b2c3d`,
+      now,
+      now
+    );
+
+    return id;
+  }
+
+  public getProjectWorkspace(idOrSlug: string, userId: string) {
+    const project = this.db.prepare(
+      'SELECT * FROM projects WHERE (id = ? OR slug = ?) AND user_id = ?'
+    ).get(idOrSlug, idOrSlug, userId) as any;
+    if (!project) return null;
+
+    const mappedProject = this.mapRowToProject(project);
+
+    // Linked GitHub repository
+    const repoRow = this.db.prepare(
+      'SELECT * FROM github_repositories WHERE (project_id = ? OR name = ? OR name = ?) AND user_id = ? LIMIT 1'
+    ).get(project.id, project.slug, project.name.toLowerCase(), userId) as any;
+
+    let repo = null;
+    let commits: any[] = [];
+    let pullRequests: any[] = [];
+
+    if (repoRow) {
+      repo = {
+        id: repoRow.id,
+        fullName: repoRow.full_name,
+        name: repoRow.name,
+        htmlUrl: repoRow.html_url,
+        description: repoRow.description,
+        defaultBranch: repoRow.default_branch || 'main',
+        stargazersCount: repoRow.stargazers_count || 0,
+        openIssuesCount: repoRow.open_issues_count || 0,
+        lastSyncedAt: repoRow.last_synced_at,
+      };
+
+      commits = (this.db.prepare(
+        'SELECT * FROM github_commits WHERE repository_id = ? ORDER BY committed_at DESC LIMIT 10'
+      ).all(repoRow.id) as any[]).map(c => ({
+        id: c.id,
+        sha: c.sha,
+        message: c.message,
+        authorName: c.author_name,
+        htmlUrl: c.html_url,
+        committedAt: c.committed_at,
+      }));
+
+      pullRequests = (this.db.prepare(
+        'SELECT * FROM github_pull_requests WHERE repository_id = ? ORDER BY created_at DESC'
+      ).all(repoRow.id) as any[]).map(p => ({
+        id: p.id,
+        number: p.number,
+        title: p.title,
+        state: p.state,
+        authorLogin: p.author_login,
+        htmlUrl: p.html_url,
+        reviewStatus: p.review_status,
+        createdAt: p.created_at,
+      }));
+    }
+
+    // Tasks for this project
+    const tasks = (this.db.prepare(
+      'SELECT * FROM tasks WHERE project_id = ? AND user_id = ? ORDER BY created_at DESC'
+    ).all(project.id, userId) as any[]).map((t) => ({
+      id: t.id,
+      title: t.title,
+      description: t.description || '',
+      priority: t.priority,
+      status: t.status,
+      dueDate: t.due_date,
+      estimatedMinutes: t.estimated_minutes,
+      actualMinutes: t.actual_minutes,
+      tags: JSON.parse(t.tags || '[]'),
+      completedAt: t.completed_at,
+      createdAt: t.created_at,
+    }));
+
+    // Milestones
+    const milestones = this.getMilestones(project.id);
+
+    // ADRs
+    const adrs = (this.db.prepare(
+      'SELECT * FROM architecture_decisions WHERE (project_id = ? OR project_id IS NULL) AND user_id = ? ORDER BY adr_number ASC LIMIT 5'
+    ).all(project.id, userId) as any[]).map((a) => ({
+      id: a.id,
+      adrNumber: a.adr_number,
+      title: a.title,
+      status: a.status,
+      context: a.context,
+      decision: a.decision,
+      mermaidDiagram: a.mermaid_diagram,
+      createdAt: a.created_at,
+    }));
+
+    return {
+      project: mappedProject,
+      repository: repo,
+      commits,
+      pullRequests,
+      tasks,
+      milestones,
+      adrs,
+    };
+  }
+
   public getMilestones(projectId: string): ProjectMilestone[] {
     const rows = this.db.prepare('SELECT * FROM project_milestones WHERE project_id = ? ORDER BY due_date ASC').all(projectId) as any[];
     return rows.map(r => ({

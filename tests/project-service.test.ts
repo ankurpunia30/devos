@@ -55,4 +55,22 @@ test('ProjectService - Milestone tracking and auto-calculated progress percentag
   const finalProject = projectService.getProjectById(project.id, DEFAULT_USER_ID);
   assert.ok(finalProject);
   assert.equal(finalProject.progressPercentage, 100);
+
+  // 6. Link GitHub repository to project workspace
+  projectService.linkRepository(project.id, 'ankurpunia30/storage-engine', DEFAULT_USER_ID);
+
+  // 7. Toggle milestone
+  projectService.toggleMilestone(ms.id, true);
+
+  // 8. Fetch full project workspace
+  const workspace = projectService.getProjectWorkspace(project.id, DEFAULT_USER_ID);
+  assert.ok(workspace);
+  assert.equal(workspace.project.name, 'DevOS Storage Engine');
+  assert.ok(workspace.repository);
+  assert.equal(workspace.repository.fullName, 'ankurpunia30/storage-engine');
+  assert.equal(workspace.tasks.length, 2);
+  assert.equal(workspace.milestones.length, 1);
+  assert.equal(workspace.milestones[0].isCompleted, true);
+  assert.ok(workspace.commits.length > 0);
+  assert.ok(workspace.pullRequests.length > 0);
 });
