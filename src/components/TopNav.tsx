@@ -20,6 +20,7 @@ const routeNames: Record<string, { title: string; subtitle: string }> = {
   '/architecture': { title: 'Architecture Decision Records (ADRs)', subtitle: 'Immutable architectural trade-offs, schemas & Mermaid diagrams' },
   '/deployments': { title: 'Environments & Deployment Telemetry', subtitle: 'Multi-stage release log & automated rollback targets' },
   '/assistant': { title: 'Contextual AI & Grounded Intelligence', subtitle: 'Deterministic natural-language task extraction & zero-hallucination Q&A' },
+  '/integrations': { title: '3rd-Party Integrations & Webhooks', subtitle: 'Live GitHub synchronization, LeetCode profile GraphQL & inbound webhooks' },
 };
 
 export function TopNav() {

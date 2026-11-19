@@ -10,6 +10,7 @@ import { CareerService } from '../domain/career-service.ts';
 import { ArchitectureService } from '../domain/architecture-service.ts';
 import { DeploymentService } from '../domain/deployment-service.ts';
 import { AiAssistantService } from '../domain/ai-assistant-service.ts';
+import { IntegrationService } from '../domain/integration-service.ts';
 
 // Global singleton across hot-reloads
 const globalForServices = globalThis as unknown as {
@@ -25,6 +26,7 @@ const globalForServices = globalThis as unknown as {
   architectureService?: ArchitectureService;
   deploymentService?: DeploymentService;
   aiAssistantService?: AiAssistantService;
+  integrationService?: IntegrationService;
 };
 
 const db = globalForServices.db || createDatabase('./devos.db');
@@ -62,3 +64,6 @@ if (process.env.NODE_ENV !== 'production') globalForServices.deploymentService =
 
 export const aiAssistantService = globalForServices.aiAssistantService || new AiAssistantService(db);
 if (process.env.NODE_ENV !== 'production') globalForServices.aiAssistantService = aiAssistantService;
+
+export const integrationService = globalForServices.integrationService || new IntegrationService(db, activityBus, githubService, dsaService);
+if (process.env.NODE_ENV !== 'production') globalForServices.integrationService = integrationService;

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import type { DSAProblem, DSATopic, DSAStatus } from '@/types';
 import {
   Code2,
@@ -132,14 +133,21 @@ export default function DSAPage() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-4 text-xs font-mono">
-              <div className="text-right">
+            <div className="flex items-center gap-3">
+              <div className="text-right font-mono text-xs hidden sm:block">
                 <span className="text-emerald-400 font-bold text-base">{stats.solved}</span>
                 <span className="text-surface-500"> / {stats.total} Solved</span>
               </div>
-              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold">
+              <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold text-xs font-mono">
                 {stats.masteryPercentage}%
               </span>
+              <Link
+                href="/integrations"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold shadow-md shadow-amber-600/25 transition-all"
+              >
+                <RotateCcw className="h-3 w-3" />
+                <span>Sync LeetCode</span>
+              </Link>
             </div>
           </div>
 

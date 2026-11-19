@@ -20,6 +20,7 @@ import {
   Layers,
   Rocket,
   Bot,
+  Webhook,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -45,6 +46,7 @@ const workspaceNavigation = [
   { name: 'Knowledge Base', href: '/notes', icon: BookOpen },
   { name: 'Snippet Vault', href: '/snippets', icon: Terminal },
   { name: 'Developer Toolbox', href: '/toolbox', icon: Wrench },
+  { name: 'Integrations & Webhooks', href: '/integrations', icon: Webhook },
 ];
 
 export function Sidebar() {

@@ -313,3 +313,41 @@ export interface Deployment {
   deployedAt: string;
   createdAt: string;
 }
+
+// ==========================================
+// Phase 5: 3rd-Party Integration Types
+// ==========================================
+export type IntegrationProvider = 'github' | 'leetcode' | 'google_calendar' | 'webhook';
+export type IntegrationStatus = 'connected' | 'error' | 'disconnected';
+
+export interface UserIntegration {
+  id: string;
+  userId: string;
+  provider: IntegrationProvider;
+  accountIdentifier: string;
+  accessToken?: string;
+  refreshToken?: string;
+  webhookSecret?: string;
+  status: IntegrationStatus;
+  lastSyncedAt?: string | null;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GitHubSyncResult {
+  reposSynced: number;
+  commitsSynced: number;
+  prsSynced: number;
+  errors: string[];
+}
+
+export interface LeetCodeSyncResult {
+  username: string;
+  totalSolved: number;
+  easySolved: number;
+  mediumSolved: number;
+  hardSolved: number;
+  recentSubmissionsProcessed: number;
+  problemsUpdated: number;
+}

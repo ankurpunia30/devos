@@ -260,3 +260,22 @@ CREATE TABLE IF NOT EXISTS deployments (
     deployed_at TEXT NOT NULL,
     created_at TEXT NOT NULL
 );
+
+-- ==========================================
+-- Phase 5: 3rd-Party Integrations & Webhooks
+-- ==========================================
+CREATE TABLE IF NOT EXISTS user_integrations (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    provider TEXT NOT NULL CHECK (provider IN ('github', 'leetcode', 'google_calendar', 'webhook')),
+    account_identifier TEXT NOT NULL,
+    access_token TEXT,
+    refresh_token TEXT,
+    webhook_secret TEXT,
+    status TEXT DEFAULT 'connected' CHECK (status IN ('connected', 'error', 'disconnected')),
+    last_synced_at TEXT,
+    metadata TEXT DEFAULT '{}',
+    created_at TEXT NOT NULL,
+    updated_at TEXT NOT NULL,
+    UNIQUE(user_id, provider)
+);

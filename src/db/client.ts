@@ -18,8 +18,8 @@ export function createDatabase(dbPath: string = ':memory:'): DatabaseSync {
   }
   db.exec('PRAGMA foreign_keys = ON;');
 
-  // Check if deployments table already exists before executing schemaSql to avoid lock contention
-  const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='deployments'").get() as { name: string } | undefined;
+  // Check if user_integrations table already exists before executing schemaSql to avoid lock contention
+  const tableCheck = db.prepare("SELECT name FROM sqlite_master WHERE type='table' AND name='user_integrations'").get() as { name: string } | undefined;
   if (!tableCheck) {
     const schemaPath = join(__dirname, 'schema.sql');
     const schemaSql = readFileSync(schemaPath, 'utf8');

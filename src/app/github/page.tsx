@@ -10,7 +10,9 @@ import {
   CheckCircle2,
   Clock,
   Plus,
+  RotateCcw,
 } from 'lucide-react';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
@@ -47,6 +49,25 @@ export default async function GitHubPage() {
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
       {/* Top Header Summary */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+            <span>GitHub Repositories & PR Review Hub</span>
+          </h2>
+          <p className="text-xs text-surface-400">
+            Live synchronization with GitHub API v3, open review queues & webhook automation
+          </p>
+        </div>
+
+        <Link
+          href="/integrations"
+          className="flex items-center gap-2 px-3.5 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold shadow-lg shadow-purple-600/25 transition-all"
+        >
+          <RotateCcw className="h-3.5 w-3.5" />
+          <span>Configure / Sync GitHub</span>
+        </Link>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="card-linear p-4 space-y-1">
           <span className="text-xs font-medium text-surface-400">Connected Repositories</span>
