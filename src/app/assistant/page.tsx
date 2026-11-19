@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { DEVOS_SUBAGENTS, type DevOSSubagent } from '@/domain/subagents-catalog';
 import type { ParsedTask } from '@/domain/ai-assistant-service';
+import { MarkdownView } from '@/components/MarkdownView';
 
 interface Message {
   id: string;
@@ -284,7 +285,13 @@ export default function AssistantPage() {
                     <span>{m.timestamp}</span>
                   </div>
 
-                  <div>{m.text}</div>
+                  <div className="mt-1">
+                    {isUser ? (
+                      <div className="whitespace-pre-wrap">{m.text}</div>
+                    ) : (
+                      <MarkdownView content={m.text} />
+                    )}
+                  </div>
 
                   {m.citations && m.citations.length > 0 && (
                     <div className="mt-3 pt-3 border-t border-white/[0.08] flex flex-wrap gap-1.5">

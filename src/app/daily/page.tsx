@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { DomainCopilot } from '@/components/DomainCopilot';
+import { MarkdownView } from '@/components/MarkdownView';
 import type { DailyPriority } from '@/types';
 import {
   Clock,
@@ -228,8 +229,8 @@ export default function DailyWorkspacePage() {
             </div>
 
             {standupMarkdown ? (
-              <div className="p-4 rounded-xl bg-surface-950 border border-white/[0.08] font-mono text-xs text-surface-200 whitespace-pre-wrap leading-relaxed max-h-96 overflow-y-auto">
-                {standupMarkdown}
+              <div className="p-4 rounded-xl bg-surface-950 border border-white/[0.08] text-xs text-surface-200 leading-relaxed max-h-96 overflow-y-auto">
+                <MarkdownView content={standupMarkdown} />
               </div>
             ) : (
               <div className="py-8 text-center text-xs text-surface-500 font-mono border border-dashed border-white/[0.06] rounded-xl">

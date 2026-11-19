@@ -13,6 +13,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { DEVOS_SUBAGENTS, type DevOSSubagent } from '@/domain/subagents-catalog';
+import { MarkdownView } from './MarkdownView';
 
 interface DomainCopilotProps {
   agentId: string;
@@ -144,13 +145,13 @@ export function DomainCopilot({
                     </div>
                   )}
                   <div
-                    className={`max-w-[85%] p-3.5 rounded-2xl leading-relaxed whitespace-pre-wrap ${
+                    className={`max-w-[85%] p-3.5 rounded-2xl leading-relaxed ${
                       m.sender === 'user'
-                        ? 'bg-brand-600 text-white font-medium'
+                        ? 'bg-brand-600 text-white font-medium whitespace-pre-wrap'
                         : 'bg-surface-950 border border-white/[0.08] text-surface-200'
                     }`}
                   >
-                    {m.text}
+                    {m.sender === 'user' ? m.text : <MarkdownView content={m.text} />}
 
                     {m.citations && m.citations.length > 0 && (
                       <div className="mt-3 pt-2.5 border-t border-white/[0.08] flex flex-wrap gap-1.5">

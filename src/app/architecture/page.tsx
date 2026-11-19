@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { DomainCopilot } from '@/components/DomainCopilot';
+import { MarkdownView } from '@/components/MarkdownView';
 import type { ArchitectureDecision, ADRStatus } from '@/types';
 import {
   Layers,
@@ -222,8 +223,8 @@ export default function ArchitecturePage() {
                 <h4 className="text-xs font-mono uppercase tracking-wider text-surface-400 font-bold">
                   1. Context & Problem Statement
                 </h4>
-                <div className="p-3.5 rounded-xl bg-surface-950/70 border border-white/[0.04] text-xs text-surface-300 leading-relaxed whitespace-pre-wrap">
-                  {selectedAdr.context}
+                <div className="p-3.5 rounded-xl bg-surface-950/70 border border-white/[0.04] text-xs text-surface-300 leading-relaxed">
+                  <MarkdownView content={selectedAdr.context} />
                 </div>
               </div>
 
@@ -232,8 +233,8 @@ export default function ArchitecturePage() {
                 <h4 className="text-xs font-mono uppercase tracking-wider text-brand-400 font-bold">
                   2. Architectural Decision
                 </h4>
-                <div className="p-3.5 rounded-xl bg-brand-500/10 border border-brand-500/20 text-xs text-brand-200 leading-relaxed whitespace-pre-wrap font-medium">
-                  {selectedAdr.decision}
+                <div className="p-3.5 rounded-xl bg-brand-500/10 border border-brand-500/20 text-xs text-brand-200 leading-relaxed font-medium">
+                  <MarkdownView content={selectedAdr.decision} />
                 </div>
               </div>
 
@@ -242,8 +243,8 @@ export default function ArchitecturePage() {
                 <h4 className="text-xs font-mono uppercase tracking-wider text-surface-400 font-bold">
                   3. Consequences & Trade-Offs
                 </h4>
-                <div className="p-3.5 rounded-xl bg-surface-950/70 border border-white/[0.04] text-xs text-surface-300 leading-relaxed whitespace-pre-wrap">
-                  {selectedAdr.consequences}
+                <div className="p-3.5 rounded-xl bg-surface-950/70 border border-white/[0.04] text-xs text-surface-300 leading-relaxed">
+                  <MarkdownView content={selectedAdr.consequences} />
                 </div>
               </div>
 

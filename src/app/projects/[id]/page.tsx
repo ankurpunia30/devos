@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { DomainCopilot } from '@/components/DomainCopilot';
+import { MarkdownView } from '@/components/MarkdownView';
 import type { Project, ProjectMilestone, Task, GitHubRepository, GitHubPullRequest, GitHubCommit } from '@/types';
 import {
   FolderGit2,
@@ -402,10 +403,14 @@ export default function ProjectWorkspacePage() {
                 <Layers className="h-4 w-4 text-brand-400" />
                 <h3 className="text-sm font-bold text-white">Architecture Overview & Technical Specs</h3>
               </div>
-              <p className="text-xs text-surface-300 leading-relaxed whitespace-pre-wrap">
-                {project.architectureOverview ||
-                  'No formal architecture overview documented yet. You can document technical boundaries, data flows, and subsystem responsibilities here.'}
-              </p>
+              <div className="text-xs text-surface-300 leading-relaxed">
+                <MarkdownView
+                  content={
+                    project.architectureOverview ||
+                    'No formal architecture overview documented yet. You can document technical boundaries, data flows, and subsystem responsibilities here.'
+                  }
+                />
+              </div>
             </div>
 
             {/* Sprint Tasks Snapshot */}
