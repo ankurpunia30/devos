@@ -1,29 +1,46 @@
-# DevOS Workspace Rules & Invariants
+# DevOS System Architecture & Architectural Invariants
 
-This workspace houses **DevOS**, the Personal Developer Operating System. When modifying or extending code in this repository, the agent must strictly comply with the following architectural invariants.
-
----
-
-## 1. Architectural Invariants
-
-- **Domain-Driven Layering**:
-  - `src/types.ts`: Single source of truth for all domain interfaces and types.
-  - `src/db/`: Persistence abstractions and schema migrations (`node:sqlite` local, PostgreSQL 16 compatible).
-  - `src/domain/`: Pure business logic (`activity-bus.ts`, `task-service.ts`, `project-service.ts`, `daily-service.ts`). Domain services must never depend directly on HTTP transport abstractions.
-  - `src/api/`: REST routing and transport translation.
-  - `src/ui/`: Presentation layer and dashboard assets.
-- **The Universal Activity Rule**:
-  - Every consequential mutation (task created/completed, project status change, pomodoro finished) MUST emit an event through the `ActivityBus`.
-  - Never mutate state in the database without an accompanying activity event.
-- **Zero-Dependency Core**:
-  - The application is engineered to run natively on Node 24 with native TypeScript type stripping (`--experimental-strip-types`), native SQLite (`node:sqlite`), and the native test runner (`node:test`). Do not add heavy external runtime dependencies without architectural approval.
-- **Type-Only Imports**:
-  - When importing TypeScript interfaces from `types.ts`, always use `import type { ... }` to ensure zero runtime emission issues in strip-only mode.
+DevOS is the personal **Developer Operating System**—a unified productivity, engineering management, and telemetry platform. When working within this codebase, the agent must strictly adhere to the non-negotiable architectural invariants and standards outlined below.
 
 ---
 
-## 2. Testing Invariants
+## 1. Core Architectural Invariants
 
-- All domain methods and API endpoints must have co-located or directory-scoped tests in `tests/`.
-- Run tests via `npm test` before concluding any ticket or proposing changes.
-- Never bypass the `Stop` verification hook when tests are failing.
+- **Next.js 15 App Router & React 19 Paradigm**:
+  - **Server Components by Default**: All page and layout components in `src/app/` must remain React Server Components unless client-side state, event handlers (`onClick`, `onChange`), or browser APIs are explicitly required.
+  - **Client Component Boundary**: Mark interactive client components with `'use client'` at the very top. Keep client component trees as small as possible; pass server-fetched data as props from server components.
+  - **Route Handlers**: API endpoints live exclusively in `src/app/api/**/route.ts` using `NextRequest` and `NextResponse`.
+- **Domain Layer Isolation**:
+  - `src/types.ts`: The single source of truth for all domain interfaces. Always use `import type { ... }` when importing interfaces to guarantee zero runtime emission issues in TypeScript strip-only mode.
+  - `src/domain/`: Pure domain business logic (`task-service.ts`, `project-service.ts`, `github-service.ts`, `dsa-service.ts`, `daily-service.ts`, `heatmap-service.ts`, `activity-bus.ts`).
+  - **Zero Transport Leakage**: Domain services must never import Next.js request/response objects, React hooks, or HTTP abstractions.
+- **The Universal Activity Invariant (Mandatory)**:
+  - Every state mutation (task completed, project status altered, commit synced, PR opened/merged, DSA problem solved, pomodoro completed) **MUST** emit an event via `activityBus.emit(...)`.
+  - Zero un-audited database writes. The `activities` table is the ground-truth telemetry log feeding the live dashboard, daily standup generator, heatmap, and AI assistant.
+- **Persistence & Singleton Services**:
+  - Use the service singletons exported from `@/lib/services` to ensure shared in-memory database handles and event subscriptions.
+  - Schema changes must update `src/db/schema.sql` maintaining dual compatibility with SQLite (`node:sqlite`) and PostgreSQL 16.
+
+---
+
+## 2. Code & Type Safety Standards
+
+- **TypeScript Constructors**:
+  - Avoid TypeScript parameter properties (`constructor(private db: DatabaseSync)`) as they are incompatible with Node native strip-only mode. Always declare class properties explicitly:
+    ```typescript
+    private db: DatabaseSync;
+    constructor(db: DatabaseSync) {
+      this.db = db;
+    }
+    ```
+- **Standardized API Response Envelopes**:
+  - Success: `NextResponse.json({ success: true, data: T }, { status: 200 | 201 })`
+  - Error: `NextResponse.json({ success: false, error: string }, { status: 400 | 404 | 500 })`
+
+---
+
+## 3. Verification & Test Gate
+
+- Any modification to domain services or API routes must be accompanied by corresponding unit or integration tests in `tests/`.
+- Always verify all 8 test suites pass via `npm test` before declaring any ticket or feature complete.
+- The `Stop` verification hook will reject termination if any test fails.

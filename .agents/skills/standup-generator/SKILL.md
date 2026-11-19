@@ -1,41 +1,44 @@
 ---
 name: standup-generator
-description: Use this skill whenever generating, inspecting, or formatting engineering daily standup reports in DevOS.
+description: Use this skill whenever generating, previewing, or exporting daily engineering standups or sprint updates in DevOS.
 ---
 
-# DevOS Daily Standup Generator Runbook
+# DevOS Automated Daily Standup Generator Runbook
 
-DevOS generates 100% grounded, zero-hallucination daily standups by synthesizing real database activities, completed tasks, and blockers.
+DevOS synthesizes **100% grounded, zero-hallucination daily standups** directly from real database telemetry.
 
 ---
 
-## Standup Synthesis Structure
-
-The generator synthesizes:
-1. **Yesterday / Recent Accomplishments**: Top 5 recently completed tasks with timestamps.
-2. **Today's Working Plan**: Top 3 daily rocks and in-progress sprint tasks sorted by priority.
-3. **Blockers & Risks**: Any task marked with status `blocked`.
+## 1. Standup Synthesis Logic
+The generator aggregates:
+1. **Recent Accomplishments**: Completed tasks ordered by `completed_at DESC`.
+2. **Today's Working Plan**: Top 3 daily rocks and in-progress tasks ordered by priority (`critical` > `high`).
+3. **Blockers & Risks**: Any task flagged with status `blocked`.
 
 ### Generating a Standup Programmatically
 ```typescript
+import { dailyService } from '@/lib/services';
+import { DEFAULT_USER_ID } from '@/db/client';
+
 const standup = dailyService.generateStandup(DEFAULT_USER_ID, "2026-11-20");
 console.log(standup.rawMarkdown);
 ```
 
-### API Endpoint
+### Next.js API Route Endpoint
 ```http
-GET /api/daily/standup?date=2026-11-20
+GET /api/daily/standup?date=YYYY-MM-DD
 ```
 
-Returns:
+Response Envelope:
 ```json
 {
   "success": true,
   "data": {
-    "rawMarkdown": "### 📋 Daily Standup Report...",
-    "yesterdayAccomplishments": [...],
-    "todayPlan": [...],
-    "blockers": [...]
+    "date": "2026-11-20",
+    "yesterdayAccomplishments": ["..."],
+    "todayPlan": ["..."],
+    "blockers": ["..."],
+    "rawMarkdown": "### 📋 Daily Standup Report..."
   }
 }
 ```

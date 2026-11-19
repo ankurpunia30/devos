@@ -1,34 +1,37 @@
 ---
 name: task-ops
-description: Use this skill whenever creating, updating, deleting, or managing tasks, sprint items, or subtasks in DevOS.
+description: Use this skill whenever creating, updating, deleting, or filtering sprint tasks, backlog items, or subtasks in DevOS.
 ---
 
 # DevOS Task Operations Runbook
 
-Follow this runbook to manage tasks and dependencies while maintaining full activity telemetry and project progress tracking.
+Manage tasks and sprint workflows while maintaining complete activity bus telemetry and automatic project progress updates.
 
 ---
 
 ## 1. Domain Service Reference
-Tasks are managed via `TaskService` in `src/domain/task-service.ts`.
+Tasks are managed via `taskService` in `@/lib/services`.
 
 ### Creating a Task Programmatically
 ```typescript
+import { taskService } from '@/lib/services';
+import { DEFAULT_USER_ID } from '@/db/client';
+
 const task = taskService.createTask({
   userId: DEFAULT_USER_ID,
-  title: "Implement Redis Caching",
+  title: "Implement Next.js App Router Server Components",
   priority: "critical", // 'critical' | 'high' | 'medium' | 'low'
   status: "todo",       // 'backlog' | 'todo' | 'in_progress' | 'blocked' | 'completed'
-  projectId: "proj_123", // Optional
-  tags: ["backend", "redis"]
+  projectId: "proj_devos_core",
+  tags: ["nextjs", "frontend", "architecture"]
 });
 ```
 
-### Updating a Task & Status Transitions
-Updating status to `completed` automatically:
-1. Sets `completed_at` to the current ISO timestamp.
-2. Emits a `task.completed` event on `ActivityBus`.
-3. Triggers `ProjectService.recalculateProjectProgress()`.
+### Status Transitions & Progress Calculation
+Setting status to `completed` automatically:
+1. Records ISO `completed_at` timestamp.
+2. Emits `task.completed` event on `ActivityBus`.
+3. Automatically triggers `projectService.recalculateProjectProgress()` on the linked project!
 
 ```typescript
 taskService.updateTask(taskId, DEFAULT_USER_ID, {
@@ -38,8 +41,16 @@ taskService.updateTask(taskId, DEFAULT_USER_ID, {
 
 ---
 
-## 2. Verification
-Always verify changes by running:
+## 2. Next.js 15 API Route Endpoints
+- `GET /api/tasks?projectId=...&status=in_progress&priority=critical`
+- `POST /api/tasks` (Payload: `{ title, description, priority, projectId, status, tags }`)
+- `PATCH /api/tasks/:id` (Payload: `{ status, priority, title, ... }`)
+- `DELETE /api/tasks/:id`
+
+---
+
+## 3. Verification
+Verify task lifecycle changes:
 ```bash
 npm test
 ```

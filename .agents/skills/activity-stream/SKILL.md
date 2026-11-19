@@ -1,44 +1,30 @@
 ---
 name: activity-stream
-description: Use this skill whenever inspecting, querying, or subscribing to DevOS activity telemetry and cross-module events.
+description: Use this skill whenever inspecting, querying, or subscribing to DevOS activity telemetry and cross-module event streams.
 ---
 
 # DevOS Universal Activity Bus Runbook
 
-Every entity mutation in DevOS emits an immutable event to the `activities` table.
+Every entity mutation across tasks, projects, git commits, PRs, and DSA practice emits an immutable event to the `activities` table.
 
 ---
 
-## 1. Emitting an Event
-
+## 1. Emitting an Activity Event
 ```typescript
+import { activityBus } from '@/lib/services';
+import { DEFAULT_USER_ID } from '@/db/client';
+
 activityBus.emit({
   userId: DEFAULT_USER_ID,
-  eventType: 'task.completed',
-  sourceDomain: 'tasks',
-  title: 'Closed issue #42',
-  description: 'Resolved memory leak in worker thread.',
+  eventType: 'project.updated',
+  sourceDomain: 'projects',
+  title: 'Project DevOS Platform progress updated to 85%',
   projectId: 'proj_devos_core',
-  taskId: 'task_123',
-  metadata: { duration_minutes: 30 }
+  metadata: { progressPercentage: 85 }
 });
 ```
 
-## 2. Subscribing to Events
-
-```typescript
-// Specific event
-activityBus.subscribe('project.completed', (event) => {
-  console.log(`Celebration! ${event.title}`);
-});
-
-// Wildcard listener
-activityBus.subscribe('*', (event) => {
-  telemetryLogger.log(event);
-});
-```
-
-## 3. Querying Event Stream
+## 2. Next.js API Route Endpoint
 ```http
 GET /api/activities?limit=30
 ```

@@ -1,47 +1,54 @@
 ---
 name: github-sync
-description: Use this skill whenever connecting GitHub repositories, recording git commits, syncing pull requests, or reviewing code turnaround in DevOS.
+description: Use this skill whenever connecting GitHub repositories, recording git commits, tracking pull requests, or reviewing code turnaround in DevOS.
 ---
 
 # DevOS GitHub Integration Runbook
 
-This skill manages the synchronization of repositories, commits, and pull requests in DevOS.
+Connect repositories, pull requests, and commits to DevOS projects and tasks.
 
 ---
 
-## 1. Connecting a Repository Programmatically
+## 1. Domain Service Reference
+GitHub telemetry is managed via `githubService` in `@/lib/services`.
 
+### Connecting a Repository Programmatically
 ```typescript
+import { githubService } from '@/lib/services';
+import { DEFAULT_USER_ID } from '@/db/client';
+
 const repo = githubService.connectRepository({
   userId: DEFAULT_USER_ID,
-  githubRepoId: 12345678,
-  name: 'my-service',
-  fullName: 'organization/my-service',
-  htmlUrl: 'https://github.com/organization/my-service',
-  projectId: 'proj_devos_core', // Optional link to project
-  stargazersCount: 15
+  githubRepoId: 98765432,
+  name: 'devos',
+  fullName: 'organization/devos',
+  htmlUrl: 'https://github.com/organization/devos',
+  projectId: 'proj_devos_core', // Links repository to DevOS project
+  stargazersCount: 28,
+  openIssuesCount: 4
 });
 ```
 
-## 2. Syncing Pull Requests & Emitting Telemetry
-
+### Tracking Pull Requests & Code Reviews
 ```typescript
-// Open PR
 const pr = githubService.createPullRequest({
   repositoryId: repo.id,
-  githubPrId: 98765,
-  number: 42,
-  title: 'feat: add Redis cache layer',
-  authorLogin: 'octocat',
-  htmlUrl: 'https://github.com/organization/my-service/pull/42',
+  githubPrId: 101,
+  number: 14,
+  title: 'feat: add Next.js 15 App Router UI',
+  authorLogin: 'lead-engineer',
+  htmlUrl: 'https://github.com/organization/devos/pull/14',
   state: 'open',
-  reviewStatus: 'approved'
+  reviewStatus: 'approved' // 'pending' | 'approved' | 'changes_requested'
 });
 ```
 
-## 3. REST API Endpoints
+---
+
+## 2. Next.js API Route Endpoints
 - `GET /api/github/repos`
 - `POST /api/github/repos`
 - `GET /api/github/prs?state=open`
 - `POST /api/github/prs`
 - `GET /api/github/commits?limit=10`
+- `POST /api/github/commits`
