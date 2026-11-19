@@ -322,7 +322,12 @@ export default function DSAPage() {
             <div className="flex items-center gap-3">
               <div className="text-right font-mono text-xs hidden sm:block">
                 <span className="text-emerald-400 font-bold text-base">{stats.solved}</span>
-                <span className="text-surface-500"> / {stats.total} Solved</span>
+                <span className="text-surface-500"> / {stats.total} Tracked in Catalog</span>
+                {stats.leetcode && stats.leetcode.totalSolved > stats.total && (
+                  <span className="block text-[10px] text-amber-400/90 font-mono">
+                    ({stats.leetcode.totalSolved} solved on LeetCode)
+                  </span>
+                )}
               </div>
               <span className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-bold text-xs font-mono">
                 {stats.masteryPercentage}%
