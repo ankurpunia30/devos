@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { DomainCopilot } from '@/components/DomainCopilot';
 import {
   Wrench,
   Code,
@@ -142,9 +143,12 @@ export default function ToolboxPage() {
           </p>
         </div>
 
-        <span className="pill-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
-          ● Secure Local Sandbox
-        </span>
+        <div className="flex items-center gap-3">
+          <DomainCopilot agentId="toolbox_agent" triggerLabel="Ask Toolbox Agent" />
+          <span className="pill-badge bg-emerald-500/10 text-emerald-400 border-emerald-500/20">
+            ● Secure Local Sandbox
+          </span>
+        </div>
       </div>
 
       {/* Tool Selector Tabs */}

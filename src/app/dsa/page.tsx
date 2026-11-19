@@ -192,6 +192,29 @@ export default function DSAPage() {
 
   return (
     <div className="p-6 md:p-8 space-y-6 max-w-7xl mx-auto">
+      {/* Top Header with Unconditional Copilot Access */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-bold text-white tracking-tight flex items-center gap-2">
+            <span>LeetCode Practice Matrix & Catalog</span>
+          </h2>
+          <p className="text-xs text-surface-400">
+            Track solved problems, spaced repetition schedules & live LeetCode telemetry
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2.5">
+          <DomainCopilot agentId="dsa_agent" triggerLabel="Ask LeetCode Agent" />
+          <button
+            onClick={() => setShowImportModal(true)}
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-xs font-semibold shadow-glow-sm transition-all cursor-pointer"
+          >
+            <Upload className="h-3.5 w-3.5" />
+            <span>Sync / Import Solved</span>
+          </button>
+        </div>
+      </div>
+
       {/* Verified LeetCode Live Profile Hero Card */}
       {stats?.leetcode?.connected ? (
         <div className="p-5 rounded-2xl bg-gradient-to-r from-surface-900 via-surface-900 to-amber-950/20 border border-amber-500/30 shadow-specular space-y-4">

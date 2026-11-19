@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { DomainCopilot } from '@/components/DomainCopilot';
 import type { CareerApplication, CareerQuestion, CareerStage } from '@/types';
 import {
   Briefcase,
@@ -153,6 +154,7 @@ export default function CareerPage() {
         </div>
 
         <div className="flex items-center gap-2">
+          <DomainCopilot agentId="career_agent" triggerLabel="Ask Career Agent" />
           {activeTab === 'pipeline' ? (
             <button
               onClick={() => setShowAppModal(true)}
