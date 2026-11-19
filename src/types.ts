@@ -1,5 +1,5 @@
 /**
- * DevOS: Core Domain Entity Types (Phase 1)
+ * DevOS: Core Domain Entity Types (Phases 1 & 2)
  */
 
 export type Priority = 'critical' | 'high' | 'medium' | 'low';
@@ -77,7 +77,14 @@ export type ActivityEventType =
   | 'milestone.completed'
   | 'pomodoro.finished'
   | 'standup.generated'
-  | 'quick_capture.saved';
+  | 'quick_capture.saved'
+  | 'github.repo_connected'
+  | 'github.commit_synced'
+  | 'github.pr_opened'
+  | 'github.pr_merged'
+  | 'dsa.problem_solved'
+  | 'dsa.problem_revision_scheduled'
+  | 'dsa.submission_logged';
 
 export interface ActivityEvent {
   id: string;
@@ -123,4 +130,113 @@ export interface StandupReport {
   blockers: string[];
   rawMarkdown: string;
   createdAt: string;
+}
+
+// ==========================================
+// Phase 2: GitHub Integration Types
+// ==========================================
+export interface GitHubRepository {
+  id: string;
+  userId: string;
+  projectId?: string | null;
+  githubRepoId: number;
+  name: string;
+  fullName: string;
+  htmlUrl: string;
+  description?: string;
+  isPrivate: boolean;
+  defaultBranch: string;
+  openIssuesCount: number;
+  stargazersCount: number;
+  lastSyncedAt?: string;
+  createdAt: string;
+}
+
+export interface GitHubCommit {
+  id: string;
+  repositoryId: string;
+  sha: string;
+  message: string;
+  authorName: string;
+  authorEmail: string;
+  htmlUrl: string;
+  committedAt: string;
+  createdAt: string;
+}
+
+export interface GitHubPullRequest {
+  id: string;
+  repositoryId: string;
+  taskId?: string | null;
+  githubPrId: number;
+  number: number;
+  title: string;
+  state: 'open' | 'closed' | 'merged';
+  authorLogin: string;
+  htmlUrl: string;
+  reviewStatus: 'pending' | 'approved' | 'changes_requested';
+  mergedAt?: string | null;
+  createdAt: string;
+}
+
+// ==========================================
+// Phase 2: LeetCode & NeetCode Types
+// ==========================================
+export type DSADifficulty = 'easy' | 'medium' | 'hard';
+export type DSAStatus = 'pending' | 'attempted' | 'solved' | 'revision_needed';
+
+export interface DSATopic {
+  id: string;
+  name: string;
+  displayOrder: number;
+}
+
+export interface DSAProblem {
+  id: string;
+  userId: string;
+  topicId: string;
+  title: string;
+  slug: string;
+  difficulty: DSADifficulty;
+  leetcodeUrl: string;
+  neetcodeRoadmapFlag: boolean;
+  status: DSAStatus;
+  notes?: string;
+  approachSummary?: string;
+  timeComplexity?: string;
+  spaceComplexity?: string;
+  nextRevisionDate?: string | null;
+  lastSolvedAt?: string | null;
+  createdAt: string;
+}
+
+export interface DSASubmission {
+  id: string;
+  problemId: string;
+  status: 'Accepted' | 'Wrong Answer' | 'Time Limit Exceeded';
+  code?: string;
+  runtimeMs?: number;
+  memoryMb?: number;
+  submittedAt: string;
+}
+
+// ==========================================
+// Phase 2: Activity Heatmap Types
+// ==========================================
+export interface DailyContribution {
+  date: string; // YYYY-MM-DD
+  count: number;
+  breakdown: {
+    tasks: number;
+    github: number;
+    dsa: number;
+    daily: number;
+  };
+}
+
+export interface HeatmapStats {
+  contributions: DailyContribution[];
+  currentStreak: number;
+  longestStreak: number;
+  totalContributions: number;
 }

@@ -2,6 +2,9 @@ import { IncomingMessage, ServerResponse } from 'node:http';
 import { TaskService } from '../domain/task-service.ts';
 import { ProjectService } from '../domain/project-service.ts';
 import { DailyService } from '../domain/daily-service.ts';
+import { GitHubService } from '../domain/github-service.ts';
+import { DSAService } from '../domain/dsa-service.ts';
+import { HeatmapService } from '../domain/heatmap-service.ts';
 import { ActivityBus } from '../domain/activity-bus.ts';
 import { DEFAULT_USER_ID } from '../db/client.ts';
 
@@ -9,17 +12,26 @@ export class ApiRouter {
   private taskService: TaskService;
   private projectService: ProjectService;
   private dailyService: DailyService;
+  private githubService: GitHubService;
+  private dsaService: DSAService;
+  private heatmapService: HeatmapService;
   private activityBus: ActivityBus;
 
   constructor(
     taskService: TaskService,
     projectService: ProjectService,
     dailyService: DailyService,
+    githubService: GitHubService,
+    dsaService: DSAService,
+    heatmapService: HeatmapService,
     activityBus: ActivityBus
   ) {
     this.taskService = taskService;
     this.projectService = projectService;
     this.dailyService = dailyService;
+    this.githubService = githubService;
+    this.dsaService = dsaService;
+    this.heatmapService = heatmapService;
     this.activityBus = activityBus;
   }
 
@@ -172,7 +184,134 @@ export class ApiRouter {
         return true;
       }
 
-      // 5. Activities
+      // 5. GitHub Endpoints (Phase 2)
+      if (pathname === '/api/github/repos' && method === 'GET') {
+        const repos = this.githubService.getRepositories(DEFAULT_USER_ID);
+        this.json(res, 200, { success: true, data: repos });
+        return true;
+      }
+
+      if (pathname === '/api/github/repos' && method === 'POST') {
+        const body = await this.readBody(req);
+        const repo = this.githubService.connectRepository({
+          userId: DEFAULT_USER_ID,
+          projectId: body.projectId,
+          githubRepoId: body.githubRepoId || Math.floor(Math.random() * 90000000) + 10000000,
+          name: body.name,
+          fullName: body.fullName || `${body.name}/${body.name}`,
+          htmlUrl: body.htmlUrl || `https://github.com/${body.name}`,
+          description: body.description,
+          isPrivate: body.isPrivate,
+          defaultBranch: body.defaultBranch || 'main',
+          openIssuesCount: body.openIssuesCount || 0,
+          stargazersCount: body.stargazersCount || 0,
+        });
+        this.json(res, 201, { success: true, data: repo });
+        return true;
+      }
+
+      if (pathname === '/api/github/prs' && method === 'GET') {
+        const state = (url.searchParams.get('state') as any) || undefined;
+        const prs = this.githubService.getPullRequests(DEFAULT_USER_ID, state);
+        this.json(res, 200, { success: true, data: prs });
+        return true;
+      }
+
+      if (pathname === '/api/github/prs' && method === 'POST') {
+        const body = await this.readBody(req);
+        const pr = this.githubService.createPullRequest({
+          repositoryId: body.repositoryId,
+          taskId: body.taskId,
+          githubPrId: body.githubPrId || Math.floor(Math.random() * 9000000) + 1000000,
+          number: body.number || 1,
+          title: body.title,
+          state: body.state || 'open',
+          authorLogin: body.authorLogin || 'developer',
+          htmlUrl: body.htmlUrl || 'https://github.com/developer/repo/pull/1',
+          reviewStatus: body.reviewStatus || 'pending',
+        });
+        this.json(res, 201, { success: true, data: pr });
+        return true;
+      }
+
+      if (pathname === '/api/github/commits' && method === 'GET') {
+        const limit = parseInt(url.searchParams.get('limit') || '10', 10);
+        const commits = this.githubService.getRecentCommits(DEFAULT_USER_ID, limit);
+        this.json(res, 200, { success: true, data: commits });
+        return true;
+      }
+
+      if (pathname === '/api/github/commits' && method === 'POST') {
+        const body = await this.readBody(req);
+        const commit = this.githubService.recordCommit({
+          repositoryId: body.repositoryId,
+          sha: body.sha || Math.random().toString(36).substring(2, 9),
+          message: body.message,
+          authorName: body.authorName || 'Lead Engineer',
+          authorEmail: body.authorEmail || 'developer@devos.local',
+          htmlUrl: body.htmlUrl || 'https://github.com',
+          committedAt: body.committedAt,
+        });
+        this.json(res, 201, { success: true, data: commit });
+        return true;
+      }
+
+      // 6. LeetCode & NeetCode Endpoints (Phase 2)
+      if (pathname === '/api/dsa/topics' && method === 'GET') {
+        const topics = this.dsaService.getTopics();
+        this.json(res, 200, { success: true, data: topics });
+        return true;
+      }
+
+      if (pathname === '/api/dsa/problems' && method === 'GET') {
+        const topicId = url.searchParams.get('topicId') || undefined;
+        const status = (url.searchParams.get('status') as any) || undefined;
+        const difficulty = (url.searchParams.get('difficulty') as any) || undefined;
+        const problems = this.dsaService.getProblems(DEFAULT_USER_ID, { topicId, status, difficulty });
+        this.json(res, 200, { success: true, data: problems });
+        return true;
+      }
+
+      if (pathname.startsWith('/api/dsa/problems/') && method === 'PATCH') {
+        const id = pathname.replace('/api/dsa/problems/', '');
+        const body = await this.readBody(req);
+        const updated = this.dsaService.updateProblem(id, DEFAULT_USER_ID, body);
+        if (!updated) {
+          this.json(res, 404, { success: false, error: 'Problem not found' });
+          return true;
+        }
+        this.json(res, 200, { success: true, data: updated });
+        return true;
+      }
+
+      if (pathname === '/api/dsa/submissions' && method === 'POST') {
+        const body = await this.readBody(req);
+        const submission = this.dsaService.recordSubmission({
+          problemId: body.problemId,
+          status: body.status || 'Accepted',
+          code: body.code,
+          runtimeMs: body.runtimeMs,
+          memoryMb: body.memoryMb,
+        });
+        this.json(res, 201, { success: true, data: submission });
+        return true;
+      }
+
+      if (pathname === '/api/dsa/stats' && method === 'GET') {
+        const stats = this.dsaService.getStats(DEFAULT_USER_ID);
+        this.json(res, 200, { success: true, data: stats });
+        return true;
+      }
+
+      // 7. Developer Analytics & Heatmap (Phase 2)
+      if (pathname === '/api/analytics/heatmap' && method === 'GET') {
+        const days = parseInt(url.searchParams.get('days') || '60', 10);
+        const heatmap = this.heatmapService.getHeatmap(DEFAULT_USER_ID, days);
+        this.json(res, 200, { success: true, data: heatmap });
+        return true;
+      }
+
+      // 8. Activities
       if (pathname === '/api/activities' && method === 'GET') {
         const limit = parseInt(url.searchParams.get('limit') || '30', 10);
         const activities = this.activityBus.getRecentActivities(DEFAULT_USER_ID, limit);
@@ -180,12 +319,11 @@ export class ApiRouter {
         return true;
       }
 
-      // 6. Quick Capture
+      // 9. Quick Capture
       if (pathname === '/api/quick-capture' && method === 'POST') {
         const body = await this.readBody(req);
         const note = body.text || '';
 
-        // If note looks like a task, auto-create task
         let createdTask = null;
         if (note.toLowerCase().startsWith('todo:') || note.toLowerCase().startsWith('fix') || note.toLowerCase().startsWith('implement')) {
           const cleanTitle = note.replace(/^todo:\s*/i, '').trim();

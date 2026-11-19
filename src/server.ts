@@ -7,6 +7,9 @@ import { ActivityBus } from './domain/activity-bus.ts';
 import { TaskService } from './domain/task-service.ts';
 import { ProjectService } from './domain/project-service.ts';
 import { DailyService } from './domain/daily-service.ts';
+import { GitHubService } from './domain/github-service.ts';
+import { DSAService } from './domain/dsa-service.ts';
+import { HeatmapService } from './domain/heatmap-service.ts';
 import { ApiRouter } from './api/router.ts';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -21,9 +24,20 @@ export function createServer(dbPath: string = './devos.db') {
   const taskService = new TaskService(db, activityBus);
   const projectService = new ProjectService(db, activityBus);
   const dailyService = new DailyService(db, activityBus);
+  const githubService = new GitHubService(db, activityBus);
+  const dsaService = new DSAService(db, activityBus);
+  const heatmapService = new HeatmapService(db);
 
   // 3. Initialize REST Router
-  const apiRouter = new ApiRouter(taskService, projectService, dailyService, activityBus);
+  const apiRouter = new ApiRouter(
+    taskService,
+    projectService,
+    dailyService,
+    githubService,
+    dsaService,
+    heatmapService,
+    activityBus
+  );
 
   // 4. Read HTML UI template
   const uiPath = join(__dirname, 'ui', 'dashboard.html');
@@ -46,7 +60,17 @@ export function createServer(dbPath: string = './devos.db') {
     res.end('Not Found');
   });
 
-  return { server, db, activityBus, taskService, projectService, dailyService };
+  return {
+    server,
+    db,
+    activityBus,
+    taskService,
+    projectService,
+    dailyService,
+    githubService,
+    dsaService,
+    heatmapService,
+  };
 }
 
 // Auto-start only when run directly as main script
@@ -57,7 +81,7 @@ if (isMainModule && process.env.NODE_ENV !== 'test') {
 
   server.listen(port, () => {
     console.log(`\n======================================================`);
-    console.log(`⚡ DevOS: Personal Developer Operating System v1.0`);
+    console.log(`⚡ DevOS: Personal Developer Operating System v2.0`);
     console.log(`🚀 Server running on: http://localhost:${port}`);
     console.log(`📊 Unified Dashboard: http://localhost:${port}`);
     console.log(`🔌 REST API Base:     http://localhost:${port}/api/health`);

@@ -96,6 +96,19 @@ function seedInitialData(db: DatabaseSync) {
     'Phase 1: Core Productivity Foundation',
     'Deliver Task Kanban, Project Hub, Daily Workspace, and Activity Bus.',
     '2026-11-30',
+    1,
+    now
+  );
+
+  db.prepare(`
+    INSERT INTO project_milestones (id, project_id, title, description, due_date, is_completed, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    'ms_devos_phase2',
+    proj1Id,
+    'Phase 2: Developer Integrations (GitHub & LeetCode)',
+    'Deliver GitHub repo/PR sync, NeetCode 150 practice hub, and Activity Heatmap.',
+    '2026-12-15',
     0,
     now
   );
@@ -135,12 +148,12 @@ function seedInitialData(db: DatabaseSync) {
     'Build high-density Task Kanban and List management interface',
     'Support drag-and-drop status transitions, priority filtering, and subtasks.',
     'high',
-    'in_progress',
+    'completed',
     now,
     120,
     60,
     JSON.stringify(['frontend', 'ui', 'tasks']),
-    null,
+    now,
     now,
     now
   );
@@ -155,12 +168,12 @@ function seedInitialData(db: DatabaseSync) {
     'Implement automated daily standup generator',
     'Synthesize yesterday accomplishments and today priorities into markdown.',
     'medium',
-    'todo',
+    'completed',
     now,
     45,
-    0,
+    30,
     JSON.stringify(['standup', 'ai', 'productivity']),
-    null,
+    now,
     now,
     now
   );
@@ -188,15 +201,146 @@ function seedInitialData(db: DatabaseSync) {
   db.prepare(`
     INSERT INTO daily_priorities (id, user_id, date, rank, task_id, custom_title, is_completed)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run('dp_1', DEFAULT_USER_ID, today, 1, task2Id, null, 0);
+  `).run('dp_1', DEFAULT_USER_ID, today, 1, null, 'Ship Phase 2 GitHub & LeetCode Integrations', 1);
 
   db.prepare(`
     INSERT INTO daily_priorities (id, user_id, date, rank, task_id, custom_title, is_completed)
     VALUES (?, ?, ?, ?, ?, ?, ?)
-  `).run('dp_2', DEFAULT_USER_ID, today, 2, task3Id, null, 0);
+  `).run('dp_2', DEFAULT_USER_ID, today, 2, null, 'Solve NeetCode Trapping Rain Water & 3Sum', 0);
 
   db.prepare(`
     INSERT INTO daily_priorities (id, user_id, date, rank, task_id, custom_title, is_completed)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `).run('dp_3', DEFAULT_USER_ID, today, 3, null, 'Review Rust Tokio async scheduling docs', 0);
+
+  // ==========================================
+  // Phase 2 Seeds: GitHub Repositories & PRs
+  // ==========================================
+  const repo1Id = 'gh_repo_devos';
+  db.prepare(`
+    INSERT INTO github_repositories (id, user_id, project_id, github_repo_id, name, full_name, html_url, description, is_private, default_branch, open_issues_count, stargazers_count, last_synced_at, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    repo1Id,
+    DEFAULT_USER_ID,
+    proj1Id,
+    87654321,
+    'devos',
+    'ankur/devos',
+    'https://github.com/ankur/devos',
+    'Personal Developer Operating System built for deep productivity and zero context-switching.',
+    1,
+    'main',
+    2,
+    14,
+    now,
+    now
+  );
+
+  db.prepare(`
+    INSERT INTO github_pull_requests (id, repository_id, task_id, github_pr_id, number, title, state, author_login, html_url, review_status, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    'pr_101',
+    repo1Id,
+    null,
+    9876501,
+    12,
+    'feat(integrations): GitHub sync adapter & LeetCode roadmap tracker',
+    'open',
+    'ankur',
+    'https://github.com/ankur/devos/pull/12',
+    'approved',
+    now
+  );
+
+  db.prepare(`
+    INSERT INTO github_commits (id, repository_id, sha, message, author_name, author_email, html_url, committed_at, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+  `).run(
+    'cmt_1',
+    repo1Id,
+    '7fde09d',
+    'feat(phase-1): core productivity foundation release',
+    'Lead Engineer',
+    'developer@devos.local',
+    'https://github.com/ankur/devos/commit/7fde09d',
+    now,
+    now
+  );
+
+  // ==========================================
+  // Phase 2 Seeds: NeetCode 150 Topics & Problems
+  // ==========================================
+  const topics = [
+    { id: 'arrays-hashing', name: 'Arrays & Hashing', order: 1 },
+    { id: 'two-pointers', name: 'Two Pointers', order: 2 },
+    { id: 'sliding-window', name: 'Sliding Window', order: 3 },
+    { id: 'stack', name: 'Stack', order: 4 },
+    { id: 'binary-search', name: 'Binary Search', order: 5 },
+    { id: 'linked-list', name: 'Linked List', order: 6 },
+    { id: 'trees', name: 'Trees', order: 7 },
+    { id: 'graphs', name: 'Graphs', order: 8 },
+    { id: 'dp', name: 'Dynamic Programming', order: 9 },
+  ];
+
+  const insertTopic = db.prepare('INSERT INTO dsa_topics (id, name, display_order) VALUES (?, ?, ?)');
+  for (const t of topics) {
+    insertTopic.run(t.id, t.name, t.order);
+  }
+
+  const problems = [
+    // Arrays & Hashing
+    { topic: 'arrays-hashing', title: 'Contains Duplicate', slug: 'contains-duplicate', diff: 'easy', status: 'solved', url: 'https://leetcode.com/problems/contains-duplicate/' },
+    { topic: 'arrays-hashing', title: 'Valid Anagram', slug: 'valid-anagram', diff: 'easy', status: 'solved', url: 'https://leetcode.com/problems/valid-anagram/' },
+    { topic: 'arrays-hashing', title: 'Two Sum', slug: 'two-sum', diff: 'easy', status: 'solved', url: 'https://leetcode.com/problems/two-sum/' },
+    { topic: 'arrays-hashing', title: 'Group Anagrams', slug: 'group-anagrams', diff: 'medium', status: 'attempted', url: 'https://leetcode.com/problems/group-anagrams/' },
+    { topic: 'arrays-hashing', title: 'Top K Frequent Elements', slug: 'top-k-frequent-elements', diff: 'medium', status: 'pending', url: 'https://leetcode.com/problems/top-k-frequent-elements/' },
+    
+    // Two Pointers
+    { topic: 'two-pointers', title: 'Valid Palindrome', slug: 'valid-palindrome', diff: 'easy', status: 'solved', url: 'https://leetcode.com/problems/valid-palindrome/' },
+    { topic: 'two-pointers', title: '3Sum', slug: '3sum', diff: 'medium', status: 'revision_needed', url: 'https://leetcode.com/problems/3sum/' },
+    { topic: 'two-pointers', title: 'Container With Most Water', slug: 'container-with-most-water', diff: 'medium', status: 'pending', url: 'https://leetcode.com/problems/container-with-most-water/' },
+    { topic: 'two-pointers', title: 'Trapping Rain Water', slug: 'trapping-rain-water', diff: 'hard', status: 'pending', url: 'https://leetcode.com/problems/trapping-rain-water/' },
+
+    // Sliding Window
+    { topic: 'sliding-window', title: 'Best Time to Buy And Sell Stock', slug: 'best-time-to-buy-and-sell-stock', diff: 'easy', status: 'solved', url: 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/' },
+    { topic: 'sliding-window', title: 'Longest Substring Without Repeating Characters', slug: 'longest-substring-without-repeating-characters', diff: 'medium', status: 'solved', url: 'https://leetcode.com/problems/longest-substring-without-repeating-characters/' },
+    
+    // Trees
+    { topic: 'trees', title: 'Invert Binary Tree', slug: 'invert-binary-tree', diff: 'easy', status: 'solved', url: 'https://leetcode.com/problems/invert-binary-tree/' },
+    { topic: 'trees', title: 'Maximum Depth of Binary Tree', slug: 'maximum-depth-of-binary-tree', diff: 'easy', status: 'solved', url: 'https://leetcode.com/problems/maximum-depth-of-binary-tree/' },
+    { topic: 'trees', title: 'Lowest Common Ancestor of a BST', slug: 'lowest-common-ancestor-of-a-binary-search-tree', diff: 'medium', status: 'pending', url: 'https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/' },
+
+    // Graphs
+    { topic: 'graphs', title: 'Number of Islands', slug: 'number-of-islands', diff: 'medium', status: 'attempted', url: 'https://leetcode.com/problems/number-of-islands/' },
+    { topic: 'graphs', title: 'Clone Graph', slug: 'clone-graph', diff: 'medium', status: 'pending', url: 'https://leetcode.com/problems/clone-graph/' },
+
+    // Dynamic Programming
+    { topic: 'dp', title: 'Climbing Stairs', slug: 'climbing-stairs', diff: 'easy', status: 'solved', url: 'https://leetcode.com/problems/climbing-stairs/' },
+    { topic: 'dp', title: 'Coin Change', slug: 'coin-change', diff: 'medium', status: 'pending', url: 'https://leetcode.com/problems/coin-change/' },
+    { topic: 'dp', title: 'Longest Increasing Subsequence', slug: 'longest-increasing-subsequence', diff: 'medium', status: 'pending', url: 'https://leetcode.com/problems/longest-increasing-subsequence/' },
+  ];
+
+  const insertProb = db.prepare(`
+    INSERT INTO dsa_problems (id, user_id, topic_id, title, slug, difficulty, leetcode_url, neetcode_roadmap_flag, status, created_at, last_solved_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)
+  `);
+
+  for (let i = 0; i < problems.length; i++) {
+    const p = problems[i];
+    const isSolved = p.status === 'solved' || p.status === 'revision_needed';
+    insertProb.run(
+      `dsa_${i + 1}`,
+      DEFAULT_USER_ID,
+      p.topic,
+      p.title,
+      p.slug,
+      p.diff,
+      p.url,
+      p.status,
+      now,
+      isSolved ? now : null
+    );
+  }
 }

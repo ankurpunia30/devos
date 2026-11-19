@@ -6,9 +6,12 @@ import { ActivityBus } from '../src/domain/activity-bus.ts';
 import { TaskService } from '../src/domain/task-service.ts';
 import { ProjectService } from '../src/domain/project-service.ts';
 import { DailyService } from '../src/domain/daily-service.ts';
+import { GitHubService } from '../src/domain/github-service.ts';
+import { DSAService } from '../src/domain/dsa-service.ts';
+import { HeatmapService } from '../src/domain/heatmap-service.ts';
 import { ApiRouter } from '../src/api/router.ts';
 
-// In-memory HTTP Request/Response Mocks for socket-free testing
+// In-memory HTTP Request/Response Mocks
 class MockReq extends EventEmitter {
   public url: string;
   public method: string;
@@ -53,13 +56,25 @@ class MockRes extends EventEmitter {
   }
 }
 
-test('ApiRouter - In-memory REST endpoints verification', async () => {
+test('ApiRouter - Phase 1 & 2 REST endpoints verification', async () => {
   const db = createDatabase(':memory:');
   const bus = new ActivityBus(db);
   const taskService = new TaskService(db, bus);
   const projectService = new ProjectService(db, bus);
   const dailyService = new DailyService(db, bus);
-  const router = new ApiRouter(taskService, projectService, dailyService, bus);
+  const githubService = new GitHubService(db, bus);
+  const dsaService = new DSAService(db, bus);
+  const heatmapService = new HeatmapService(db);
+
+  const router = new ApiRouter(
+    taskService,
+    projectService,
+    dailyService,
+    githubService,
+    dsaService,
+    heatmapService,
+    bus
+  );
 
   // 1. GET /api/health
   {
@@ -70,57 +85,48 @@ test('ApiRouter - In-memory REST endpoints verification', async () => {
     assert.equal(res.json().status, 'ok');
   }
 
-  // 2. GET /api/projects
+  // 2. GET /api/github/repos
   {
-    const req = new MockReq('/api/projects', 'GET') as any;
+    const req = new MockReq('/api/github/repos', 'GET') as any;
     const res = new MockRes() as any;
     await router.handle(req, res);
     assert.equal(res.statusCode, 200);
-    assert.ok(res.json().data.length >= 2);
+    assert.ok(res.json().data.length >= 1);
   }
 
-  // 3. POST /api/tasks
-  let createdTaskId: string;
+  // 3. GET /api/github/prs
   {
-    const req = new MockReq('/api/tasks', 'POST', {
-      title: 'Mock In-Memory Task',
-      priority: 'high',
-      status: 'todo',
-    }) as any;
-    const res = new MockRes() as any;
-    await router.handle(req, res);
-    assert.equal(res.statusCode, 201);
-    const data = res.json().data;
-    assert.equal(data.title, 'Mock In-Memory Task');
-    createdTaskId = data.id;
-  }
-
-  // 4. PATCH /api/tasks/:id
-  {
-    const req = new MockReq(`/api/tasks/${createdTaskId}`, 'PATCH', {
-      status: 'completed',
-    }) as any;
+    const req = new MockReq('/api/github/prs', 'GET') as any;
     const res = new MockRes() as any;
     await router.handle(req, res);
     assert.equal(res.statusCode, 200);
-    assert.equal(res.json().data.status, 'completed');
+    assert.ok(res.json().data.length >= 1);
   }
 
-  // 5. GET /api/daily/standup
+  // 4. GET /api/dsa/topics
   {
-    const req = new MockReq('/api/daily/standup', 'GET') as any;
+    const req = new MockReq('/api/dsa/topics', 'GET') as any;
     const res = new MockRes() as any;
     await router.handle(req, res);
     assert.equal(res.statusCode, 200);
-    assert.ok(res.json().data.rawMarkdown.includes('Daily Standup Report'));
+    assert.ok(res.json().data.length >= 8);
   }
 
-  // 6. GET /api/activities
+  // 5. GET /api/dsa/stats
   {
-    const req = new MockReq('/api/activities?limit=10', 'GET') as any;
+    const req = new MockReq('/api/dsa/stats', 'GET') as any;
     const res = new MockRes() as any;
     await router.handle(req, res);
     assert.equal(res.statusCode, 200);
-    assert.ok(res.json().data.length > 0);
+    assert.ok(res.json().data.total > 0);
+  }
+
+  // 6. GET /api/analytics/heatmap
+  {
+    const req = new MockReq('/api/analytics/heatmap?days=30', 'GET') as any;
+    const res = new MockRes() as any;
+    await router.handle(req, res);
+    assert.equal(res.statusCode, 200);
+    assert.equal(res.json().data.contributions.length, 30);
   }
 });

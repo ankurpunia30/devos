@@ -1,4 +1,4 @@
--- DevOS Phase 1 Schema (Compatible with PostgreSQL 16 & SQLite)
+-- DevOS Schema: Phase 1 & 2 (Compatible with PostgreSQL 16 & SQLite)
 
 CREATE TABLE IF NOT EXISTS users (
     id TEXT PRIMARY KEY,
@@ -106,4 +106,90 @@ CREATE TABLE IF NOT EXISTS standup_reports (
     blockers TEXT NOT NULL, -- JSON array
     raw_markdown TEXT NOT NULL,
     created_at TEXT NOT NULL
+);
+
+-- ==========================================
+-- Phase 2: GitHub Integration Tables
+-- ==========================================
+CREATE TABLE IF NOT EXISTS github_repositories (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    project_id TEXT REFERENCES projects(id) ON DELETE SET NULL,
+    github_repo_id INTEGER UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    html_url TEXT NOT NULL,
+    description TEXT,
+    is_private INTEGER DEFAULT 0,
+    default_branch TEXT DEFAULT 'main',
+    open_issues_count INTEGER DEFAULT 0,
+    stargazers_count INTEGER DEFAULT 0,
+    last_synced_at TEXT,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS github_commits (
+    id TEXT PRIMARY KEY,
+    repository_id TEXT NOT NULL REFERENCES github_repositories(id) ON DELETE CASCADE,
+    sha TEXT UNIQUE NOT NULL,
+    message TEXT NOT NULL,
+    author_name TEXT NOT NULL,
+    author_email TEXT NOT NULL,
+    html_url TEXT NOT NULL,
+    committed_at TEXT NOT NULL,
+    created_at TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS github_pull_requests (
+    id TEXT PRIMARY KEY,
+    repository_id TEXT NOT NULL REFERENCES github_repositories(id) ON DELETE CASCADE,
+    task_id TEXT REFERENCES tasks(id) ON DELETE SET NULL,
+    github_pr_id INTEGER UNIQUE NOT NULL,
+    number INTEGER NOT NULL,
+    title TEXT NOT NULL,
+    state TEXT DEFAULT 'open', -- 'open' | 'closed' | 'merged'
+    author_login TEXT NOT NULL,
+    html_url TEXT NOT NULL,
+    review_status TEXT DEFAULT 'pending', -- 'pending' | 'approved' | 'changes_requested'
+    merged_at TEXT,
+    created_at TEXT NOT NULL
+);
+
+-- ==========================================
+-- Phase 2: LeetCode & NeetCode Tables
+-- ==========================================
+CREATE TABLE IF NOT EXISTS dsa_topics (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    display_order INTEGER DEFAULT 0
+);
+
+CREATE TABLE IF NOT EXISTS dsa_problems (
+    id TEXT PRIMARY KEY,
+    user_id TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    topic_id TEXT NOT NULL REFERENCES dsa_topics(id),
+    title TEXT NOT NULL,
+    slug TEXT NOT NULL,
+    difficulty TEXT CHECK (difficulty IN ('easy', 'medium', 'hard')),
+    leetcode_url TEXT NOT NULL,
+    neetcode_roadmap_flag INTEGER DEFAULT 1,
+    status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'attempted', 'solved', 'revision_needed')),
+    notes TEXT,
+    approach_summary TEXT,
+    time_complexity TEXT,
+    space_complexity TEXT,
+    next_revision_date TEXT,
+    last_solved_at TEXT,
+    created_at TEXT NOT NULL,
+    UNIQUE(user_id, slug)
+);
+
+CREATE TABLE IF NOT EXISTS dsa_submissions (
+    id TEXT PRIMARY KEY,
+    problem_id TEXT NOT NULL REFERENCES dsa_problems(id) ON DELETE CASCADE,
+    status TEXT NOT NULL, -- 'Accepted', 'Wrong Answer', 'Time Limit Exceeded'
+    code TEXT,
+    runtime_ms INTEGER,
+    memory_mb REAL,
+    submitted_at TEXT NOT NULL
 );

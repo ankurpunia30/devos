@@ -36,7 +36,7 @@
         </div>
         <div>
           <h1 class="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
-            DevOS <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono border border-indigo-500/20">v1.0</span>
+            DevOS <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono border border-indigo-500/20">v2.0</span>
           </h1>
           <p class="text-xs text-slate-400">Developer Operating System</p>
         </div>
@@ -53,8 +53,17 @@
         <button onclick="switchTab('projects')" id="nav-projects" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
           <span>🚀</span> <span>Project Hub</span>
         </button>
+        <button onclick="switchTab('github')" id="nav-github" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
+          <span>🐙</span> <span>GitHub & PRs</span>
+        </button>
+        <button onclick="switchTab('dsa')" id="nav-dsa" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
+          <span>🧩</span> <span>LeetCode / NeetCode</span>
+        </button>
         <button onclick="switchTab('daily')" id="nav-daily" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
           <span>⏱️</span> <span>My Day & Standup</span>
+        </button>
+        <button onclick="switchTab('analytics')" id="nav-analytics" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
+          <span>🔥</span> <span>Heatmap & Streaks</span>
         </button>
         <button onclick="switchTab('activities')" id="nav-activities" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
           <span>📡</span> <span>Activity Stream</span>
@@ -93,7 +102,7 @@
       </h2>
       <div class="flex items-center space-x-3">
         <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-          ● Activity Bus Live
+          ● GitHub & LeetCode Linked
         </span>
         <button onclick="refreshAllData()" class="px-2.5 py-1 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 transition">
           ↻ Refresh
@@ -106,24 +115,37 @@
       <!-- Metric Highlights -->
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <div class="p-4 rounded-xl bg-surface-900 border border-slate-800">
-          <p class="text-xs text-slate-400 font-medium">Today's Rocks</p>
-          <h3 id="stat-rocks" class="text-2xl font-bold text-white mt-1 mono">0/3</h3>
-          <p class="text-[11px] text-indigo-400 mt-1">High priority goals</p>
+          <p class="text-xs text-slate-400 font-medium">Daily Streak</p>
+          <h3 id="stat-streak" class="text-2xl font-bold text-white mt-1 mono">🔥 0 Days</h3>
+          <p class="text-[11px] text-amber-400 mt-1">Cross-module consistency</p>
         </div>
         <div class="p-4 rounded-xl bg-surface-900 border border-slate-800">
-          <p class="text-xs text-slate-400 font-medium">Active Projects</p>
-          <h3 id="stat-projects" class="text-2xl font-bold text-white mt-1 mono">0</h3>
-          <p class="text-[11px] text-emerald-400 mt-1">Tracked milestones</p>
+          <p class="text-xs text-slate-400 font-medium">NeetCode Mastery</p>
+          <h3 id="stat-dsa" class="text-2xl font-bold text-white mt-1 mono">0/0</h3>
+          <p id="stat-dsa-pct" class="text-[11px] text-emerald-400 mt-1">0% Completed</p>
+        </div>
+        <div class="p-4 rounded-xl bg-surface-900 border border-slate-800">
+          <p class="text-xs text-slate-400 font-medium">Open Pull Requests</p>
+          <h3 id="stat-prs" class="text-2xl font-bold text-white mt-1 mono">0</h3>
+          <p class="text-[11px] text-indigo-400 mt-1">Awaiting review</p>
         </div>
         <div class="p-4 rounded-xl bg-surface-900 border border-slate-800">
           <p class="text-xs text-slate-400 font-medium">Tasks In Progress</p>
           <h3 id="stat-in-progress" class="text-2xl font-bold text-white mt-1 mono">0</h3>
-          <p class="text-[11px] text-amber-400 mt-1">Active sprint items</p>
+          <p class="text-[11px] text-purple-400 mt-1">Active sprint items</p>
         </div>
-        <div class="p-4 rounded-xl bg-surface-900 border border-slate-800">
-          <p class="text-xs text-slate-400 font-medium">Completed Today</p>
-          <h3 id="stat-completed" class="text-2xl font-bold text-white mt-1 mono">0</h3>
-          <p class="text-[11px] text-purple-400 mt-1">Telemetry events</p>
+      </div>
+
+      <!-- Quick Contribution Heatmap Strip -->
+      <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between">
+          <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+            <span>🔥</span> <span>30-Day Activity Heatmap</span>
+          </h3>
+          <button onclick="switchTab('analytics')" class="text-xs text-indigo-400 hover:text-indigo-300">View Deep Analytics ➔</button>
+        </div>
+        <div id="dash-heatmap-strip" class="flex gap-1.5 overflow-x-auto py-1">
+          <!-- Rendered via JS -->
         </div>
       </div>
 
@@ -131,7 +153,6 @@
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Left: Today's Priorities + Projects -->
         <div class="lg:col-span-2 space-y-6">
-          <!-- Top 3 Daily Rocks Widget -->
           <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4">
             <div class="flex items-center justify-between">
               <h3 class="text-sm font-semibold text-white flex items-center gap-2">
@@ -139,12 +160,9 @@
               </h3>
               <button onclick="switchTab('daily')" class="text-xs text-indigo-400 hover:text-indigo-300">Manage ➔</button>
             </div>
-            <div id="dash-priorities-list" class="space-y-2.5">
-              <!-- Rendered via JS -->
-            </div>
+            <div id="dash-priorities-list" class="space-y-2.5"></div>
           </div>
 
-          <!-- Active Projects Progress Widget -->
           <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4">
             <div class="flex items-center justify-between">
               <h3 class="text-sm font-semibold text-white flex items-center gap-2">
@@ -152,9 +170,7 @@
               </h3>
               <button onclick="switchTab('projects')" class="text-xs text-indigo-400 hover:text-indigo-300">All Projects ➔</button>
             </div>
-            <div id="dash-projects-list" class="space-y-4">
-              <!-- Rendered via JS -->
-            </div>
+            <div id="dash-projects-list" class="space-y-4"></div>
           </div>
         </div>
 
@@ -166,9 +182,7 @@
             </h3>
             <span class="text-[10px] mono text-slate-500">REALTIME</span>
           </div>
-          <div id="dash-activity-feed" class="space-y-3 overflow-y-auto max-h-[500px] pr-1">
-            <!-- Rendered via JS -->
-          </div>
+          <div id="dash-activity-feed" class="space-y-3 overflow-y-auto max-h-[500px] pr-1"></div>
         </div>
       </div>
     </div>
@@ -185,9 +199,7 @@
         </button>
       </div>
 
-      <!-- Kanban Columns Grid -->
       <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
-        <!-- Backlog -->
         <div class="bg-surface-900/60 border border-slate-800 rounded-xl p-3 flex flex-col">
           <div class="flex items-center justify-between mb-3 px-1">
             <span class="text-xs font-semibold text-slate-400">Backlog</span>
@@ -195,8 +207,6 @@
           </div>
           <div id="col-backlog" class="space-y-2 flex-1 min-h-[350px]"></div>
         </div>
-
-        <!-- Todo -->
         <div class="bg-surface-900/60 border border-slate-800 rounded-xl p-3 flex flex-col">
           <div class="flex items-center justify-between mb-3 px-1">
             <span class="text-xs font-semibold text-indigo-400">Todo</span>
@@ -204,8 +214,6 @@
           </div>
           <div id="col-todo" class="space-y-2 flex-1 min-h-[350px]"></div>
         </div>
-
-        <!-- In Progress -->
         <div class="bg-surface-900/60 border border-slate-800 rounded-xl p-3 flex flex-col">
           <div class="flex items-center justify-between mb-3 px-1">
             <span class="text-xs font-semibold text-amber-400">In Progress</span>
@@ -213,8 +221,6 @@
           </div>
           <div id="col-in_progress" class="space-y-2 flex-1 min-h-[350px]"></div>
         </div>
-
-        <!-- Blocked -->
         <div class="bg-surface-900/60 border border-slate-800 rounded-xl p-3 flex flex-col">
           <div class="flex items-center justify-between mb-3 px-1">
             <span class="text-xs font-semibold text-rose-400">Blocked</span>
@@ -222,8 +228,6 @@
           </div>
           <div id="col-blocked" class="space-y-2 flex-1 min-h-[350px]"></div>
         </div>
-
-        <!-- Completed -->
         <div class="bg-surface-900/60 border border-slate-800 rounded-xl p-3 flex flex-col">
           <div class="flex items-center justify-between mb-3 px-1">
             <span class="text-xs font-semibold text-emerald-400">Completed</span>
@@ -241,22 +245,115 @@
           <h3 class="text-lg font-bold text-white">Project Workspaces</h3>
           <p class="text-xs text-slate-400">Consolidated hubs for active, learning, and personal software projects</p>
         </div>
-        <button onclick="openNewProjectModal()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 transition">
-          + New Project
+      </div>
+      <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>
+    </div>
+
+    <!-- TAB 4: GITHUB INTEGRATION (PHASE 2) -->
+    <div id="tab-github" class="tab-pane hidden p-8 space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>🐙</span> <span>GitHub Repositories & Code Reviews</span>
+          </h3>
+          <p class="text-xs text-slate-400">Track connected repos, incoming PR reviews, and recent commit activity</p>
+        </div>
+        <button onclick="openConnectRepoModal()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 transition">
+          + Connect Repository
         </button>
       </div>
 
-      <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        <!-- Rendered via JS -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Repositories List -->
+        <div class="lg:col-span-2 space-y-6">
+          <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4">
+            <h4 class="text-sm font-semibold text-white flex items-center gap-2">
+              <span>📦</span> <span>Connected Repositories</span>
+            </h4>
+            <div id="github-repos-list" class="space-y-3"></div>
+          </div>
+
+          <!-- Pull Requests Tracker -->
+          <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="text-sm font-semibold text-white flex items-center gap-2">
+                <span>🔄</span> <span>Open Pull Requests</span>
+              </h4>
+              <span id="badge-github-prs" class="text-xs mono text-indigo-400 font-medium">0 Open</span>
+            </div>
+            <div id="github-prs-list" class="space-y-2.5"></div>
+          </div>
+        </div>
+
+        <!-- Recent Commits Stream -->
+        <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4">
+          <h4 class="text-sm font-semibold text-white flex items-center gap-2">
+            <span>🔀</span> <span>Recent Git Commits</span>
+          </h4>
+          <div id="github-commits-list" class="space-y-3 overflow-y-auto max-h-[550px] pr-1"></div>
+        </div>
       </div>
     </div>
 
-    <!-- TAB 4: DAILY WORKSPACE & STANDUP -->
+    <!-- TAB 5: LEETCODE & NEETCODE (PHASE 2) -->
+    <div id="tab-dsa" class="tab-pane hidden p-8 space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>🧩</span> <span>LeetCode & NeetCode 150 Roadmap</span>
+          </h3>
+          <p class="text-xs text-slate-400">Master Data Structures & Algorithms with spaced repetition and curated problems</p>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span class="text-xs text-slate-400">Filter Topic:</span>
+          <select id="dsa-topic-filter" onchange="filterDSAProblems()" class="bg-slate-900 border border-slate-700 rounded px-2.5 py-1 text-xs text-white">
+            <option value="">All Topics</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Roadmap Progress Bar -->
+      <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-3">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-semibold text-slate-200">NeetCode 150 Curriculum Progress</span>
+          <span id="dsa-progress-text" class="mono text-indigo-400 font-bold">0% Mastered</span>
+        </div>
+        <div class="w-full bg-slate-950 h-3 rounded-full overflow-hidden">
+          <div id="dsa-progress-bar" class="bg-gradient-to-r from-indigo-500 to-emerald-500 h-full rounded-full transition-all" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-[11px] text-slate-400 pt-1">
+          <span id="dsa-solved-count">Solved: 0</span>
+          <span id="dsa-attempted-count">Attempted: 0</span>
+          <span id="dsa-revision-count">Needs Revision: 0</span>
+        </div>
+      </div>
+
+      <!-- Problems Table -->
+      <div class="bg-surface-900 border border-slate-800 rounded-xl overflow-hidden shadow">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950 text-slate-400 font-mono text-[11px] uppercase border-b border-slate-800">
+              <tr>
+                <th class="p-3">Problem Title</th>
+                <th class="p-3">Topic</th>
+                <th class="p-3">Difficulty</th>
+                <th class="p-3">Status</th>
+                <th class="p-3">Next Revision</th>
+                <th class="p-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="dsa-problems-table" class="divide-y divide-slate-800/60 text-slate-200">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: DAILY WORKSPACE & STANDUP -->
     <div id="tab-daily" class="tab-pane hidden p-8 space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Left: Pomodoro Timer & 3 Rocks -->
         <div class="space-y-6">
-          <!-- Pomodoro Widget -->
           <div class="p-6 rounded-xl bg-surface-900 border border-slate-800 text-center space-y-4">
             <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Pomodoro Focus Timer</span>
             <div id="timer-display" class="text-5xl font-bold text-white mono my-2">25:00</div>
@@ -271,7 +368,6 @@
             <p class="text-[11px] text-slate-500">Each finished session logs directly to your Activity Bus.</p>
           </div>
 
-          <!-- Top 3 Priorities Manager -->
           <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4">
             <h3 class="text-sm font-semibold text-white">Manage Today's 3 Rocks</h3>
             <div class="space-y-3">
@@ -294,7 +390,6 @@
           </div>
         </div>
 
-        <!-- Right: Automated Standup Generator -->
         <div class="lg:col-span-2 p-6 rounded-xl bg-surface-900 border border-slate-800 space-y-5 flex flex-col justify-between">
           <div class="space-y-4">
             <div class="flex items-center justify-between">
@@ -308,8 +403,6 @@
                 <span>⚡</span> <span>Generate Report</span>
               </button>
             </div>
-
-            <!-- Standup Output Display -->
             <div class="relative">
               <textarea id="standup-markdown" rows="14" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500 leading-relaxed" placeholder="Click 'Generate Report' to synthesize your daily standup from live task and activity logs..."></textarea>
               <button onclick="copyStandup()" class="absolute top-3 right-3 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] text-slate-300 font-mono transition">
@@ -317,31 +410,63 @@
               </button>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
 
-          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-            <span>Powered by DevOS Activity Bus Grounding (Zero Hallucination)</span>
-            <span class="mono text-indigo-400">100% Grounded</span>
+    <!-- TAB 7: HEATMAP & STREAKS (PHASE 2) -->
+    <div id="tab-analytics" class="tab-pane hidden p-8 space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-white flex items-center gap-2">
+            <span>🔥</span> <span>Developer Activity Heatmap & Consistency</span>
+          </h3>
+          <p class="text-xs text-slate-400">60-day visual contribution matrix spanning code, DSA practice, and focus blocks</p>
+        </div>
+      </div>
+
+      <div class="p-6 rounded-xl bg-surface-900 border border-slate-800 space-y-6">
+        <div class="grid grid-cols-3 gap-4 text-center">
+          <div class="p-4 rounded-lg bg-slate-950 border border-slate-800">
+            <span class="text-xs text-slate-400">Current Streak</span>
+            <h4 id="heatmap-current-streak" class="text-3xl font-bold text-amber-400 mono mt-1">0 Days</h4>
+          </div>
+          <div id="longest-streak-card" class="p-4 rounded-lg bg-slate-950 border border-slate-800">
+            <span class="text-xs text-slate-400">Longest Streak</span>
+            <h4 id="heatmap-longest-streak" class="text-3xl font-bold text-emerald-400 mono mt-1">0 Days</h4>
+          </div>
+          <div class="p-4 rounded-lg bg-slate-950 border border-slate-800">
+            <span class="text-xs text-slate-400">Total Contributions</span>
+            <h4 id="heatmap-total-contributions" class="text-3xl font-bold text-indigo-400 mono mt-1">0</h4>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-semibold text-slate-400 mb-3">60-Day Contribution Grid</h4>
+          <div id="full-heatmap-grid" class="flex flex-wrap gap-1.5 p-4 rounded-lg bg-slate-950 border border-slate-800"></div>
+          <div class="flex items-center justify-end space-x-2 text-[10px] text-slate-500 mono mt-2">
+            <span>Less</span>
+            <span class="h-3 w-3 rounded-sm bg-slate-900"></span>
+            <span class="h-3 w-3 rounded-sm bg-indigo-950"></span>
+            <span class="h-3 w-3 rounded-sm bg-indigo-700"></span>
+            <span class="h-3 w-3 rounded-sm bg-indigo-500"></span>
+            <span class="h-3 w-3 rounded-sm bg-emerald-400"></span>
+            <span>More</span>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- TAB 5: ACTIVITY STREAM -->
+    <!-- TAB 8: ACTIVITY STREAM -->
     <div id="tab-activities" class="tab-pane hidden p-8 space-y-6">
       <div class="flex items-center justify-between">
         <div>
           <h3 class="text-lg font-bold text-white">Universal Activity Journal</h3>
-          <p class="text-xs text-slate-400">Immutable chronological telemetry of all events across tasks, projects, and daily focus</p>
+          <p class="text-xs text-slate-400">Immutable chronological telemetry of all events across tasks, projects, git, and DSA</p>
         </div>
-        <button onclick="loadActivities()" class="px-3 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">
-          ↻ Refresh
-        </button>
       </div>
-
       <div class="bg-surface-900 border border-slate-800 rounded-xl p-5">
-        <div id="full-activity-stream" class="space-y-4">
-          <!-- Rendered via JS -->
-        </div>
+        <div id="full-activity-stream" class="space-y-4"></div>
       </div>
     </div>
   </main>
@@ -371,15 +496,40 @@
           </div>
           <div>
             <label class="text-xs text-slate-400 block mb-1">Project</label>
-            <select id="new-task-project" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white">
-              <!-- Rendered via JS -->
-            </select>
+            <select id="new-task-project" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white"></select>
           </div>
         </div>
       </div>
       <div class="flex justify-end space-x-2.5 pt-2">
         <button onclick="closeModal('modal-task')" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-300">Cancel</button>
         <button onclick="submitNewTask()" class="px-4 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white">Create Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONNECT GITHUB REPOSITORY -->
+  <div id="modal-repo" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-surface-900 border border-slate-800 rounded-xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+      <h3 class="text-base font-bold text-white flex items-center gap-2">
+        <span>🐙</span> <span>Connect GitHub Repository</span>
+      </h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Repository Full Name</label>
+          <input id="new-repo-name" type="text" placeholder="e.g. ankur/distributed-db" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white font-mono" />
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Description</label>
+          <input id="new-repo-desc" type="text" placeholder="Short description" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white" />
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Link to DevOS Project</label>
+          <select id="new-repo-project" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white"></select>
+        </div>
+      </div>
+      <div class="flex justify-end space-x-2.5 pt-2">
+        <button onclick="closeModal('modal-repo')" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-300">Cancel</button>
+        <button onclick="submitConnectRepo()" class="px-4 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white">Connect</button>
       </div>
     </div>
   </div>
@@ -392,6 +542,13 @@
     let tasks = [];
     let activities = [];
     let priorities = [];
+    let githubRepos = [];
+    let githubPRs = [];
+    let githubCommits = [];
+    let dsaTopics = [];
+    let dsaProblems = [];
+    let dsaStats = null;
+    let heatmapData = null;
 
     // Pomodoro Timer State
     let timerSeconds = 25 * 60;
@@ -404,7 +561,15 @@
     });
 
     async function refreshAllData() {
-      await Promise.all([loadProjects(), loadTasks(), loadPriorities(), loadActivities()]);
+      await Promise.all([
+        loadProjects(),
+        loadTasks(),
+        loadPriorities(),
+        loadActivities(),
+        loadGitHubData(),
+        loadDSAData(),
+        loadHeatmap()
+      ]);
       updateDashboardStats();
     }
 
@@ -417,14 +582,19 @@
 
       document.getElementById(`tab-${tabId}`).classList.remove('hidden');
       const activeBtn = document.getElementById(`nav-${tabId}`);
-      activeBtn.classList.add('bg-slate-800', 'text-white');
-      activeBtn.classList.remove('text-slate-400');
+      if (activeBtn) {
+        activeBtn.classList.add('bg-slate-800', 'text-white');
+        activeBtn.classList.remove('text-slate-400');
+      }
 
       const titles = {
         dashboard: 'Executive Dashboard',
         tasks: 'Task Kanban & Sprints',
         projects: 'Project Workspaces',
+        github: 'GitHub Repositories & Pull Requests',
+        dsa: 'LeetCode & NeetCode 150 Practice Hub',
         daily: 'Daily Operations & Standup',
+        analytics: 'Developer Activity Heatmap & Consistency',
         activities: 'Universal Activity Journal'
       };
       document.getElementById('view-title').textContent = titles[tabId] || 'DevOS';
@@ -483,9 +653,11 @@
     }
 
     function renderProjectSelectOptions() {
-      const sel = document.getElementById('new-task-project');
-      sel.innerHTML = `<option value="">None (Independent)</option>` + 
+      const opts = `<option value="">None (Independent)</option>` + 
         projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+      document.getElementById('new-task-project').innerHTML = opts;
+      const repoSel = document.getElementById('new-repo-project');
+      if (repoSel) repoSel.innerHTML = opts;
     }
 
     // Tasks API
@@ -556,6 +728,226 @@
       refreshAllData();
     }
 
+    // ==========================================
+    // Phase 2: GitHub API & Rendering
+    // ==========================================
+    async function loadGitHubData() {
+      const [reposRes, prsRes, commitsRes] = await Promise.all([
+        fetch('/api/github/repos'),
+        fetch('/api/github/prs'),
+        fetch('/api/github/commits')
+      ]);
+
+      githubRepos = (await reposRes.json()).data || [];
+      githubPRs = (await prsRes.json()).data || [];
+      githubCommits = (await commitsRes.json()).data || [];
+
+      renderGitHubView();
+    }
+
+    function renderGitHubView() {
+      document.getElementById('badge-github-prs').textContent = `${githubPRs.filter(p => p.state === 'open').length} Open`;
+
+      // Repos list
+      const reposContainer = document.getElementById('github-repos-list');
+      reposContainer.innerHTML = githubRepos.map(r => `
+        <div class="p-4 rounded-lg bg-slate-950 border border-slate-800/80 flex items-center justify-between">
+          <div class="space-y-1">
+            <div class="flex items-center space-x-2">
+              <a href="${r.htmlUrl}" target="_blank" class="text-sm font-bold text-white hover:text-indigo-400 font-mono">${r.fullName}</a>
+              <span class="text-[10px] px-1.5 rounded bg-slate-900 border border-slate-800 text-slate-400 mono">${r.defaultBranch}</span>
+            </div>
+            <p class="text-xs text-slate-400">${r.description || 'No description provided'}</p>
+          </div>
+          <div class="flex items-center space-x-4 text-xs font-mono text-slate-400">
+            <span>⭐ ${r.stargazersCount}</span>
+            <span>⚠️ ${r.openIssuesCount} issues</span>
+          </div>
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500">No repositories connected yet.</p>';
+
+      // Pull Requests
+      const prsContainer = document.getElementById('github-prs-list');
+      prsContainer.innerHTML = githubPRs.map(pr => `
+        <div class="p-3 rounded-lg bg-slate-950 border border-slate-800 flex items-center justify-between">
+          <div class="space-y-0.5">
+            <div class="flex items-center space-x-2">
+              <span class="text-[10px] font-mono text-indigo-400">#${pr.number}</span>
+              <a href="${pr.htmlUrl}" target="_blank" class="text-xs font-semibold text-slate-200 hover:text-white">${pr.title}</a>
+            </div>
+            <p class="text-[10px] text-slate-500 mono">by @${pr.authorLogin}</p>
+          </div>
+          <span class="px-2 py-0.5 text-[10px] rounded font-mono ${
+            pr.reviewStatus === 'approved' ? 'bg-emerald-500/20 text-emerald-300' :
+            pr.reviewStatus === 'changes_requested' ? 'bg-rose-500/20 text-rose-300' :
+            'bg-amber-500/20 text-amber-300'
+          }">${pr.reviewStatus.toUpperCase()}</span>
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500">No open pull requests.</p>';
+
+      // Commits
+      const commitsContainer = document.getElementById('github-commits-list');
+      commitsContainer.innerHTML = githubCommits.map(c => `
+        <div class="p-2.5 rounded bg-slate-950 border border-slate-800/80 text-xs space-y-1">
+          <div class="flex items-center justify-between font-mono text-[10px]">
+            <span class="text-indigo-400 font-bold">${c.sha.slice(0, 7)}</span>
+            <span class="text-slate-500">${new Date(c.committedAt).toLocaleTimeString()}</span>
+          </div>
+          <p class="text-slate-200">${c.message}</p>
+          <p class="text-[10px] text-slate-500 mono">@${c.authorName}</p>
+        </div>
+      `).join('') || '<p class="text-xs text-slate-500">No recent commits.</p>';
+    }
+
+    function openConnectRepoModal() {
+      document.getElementById('modal-repo').classList.remove('hidden');
+      document.getElementById('modal-repo').classList.add('flex');
+    }
+
+    async function submitConnectRepo() {
+      const fullName = document.getElementById('new-repo-name').value.trim();
+      const desc = document.getElementById('new-repo-desc').value.trim();
+      const projectId = document.getElementById('new-repo-project').value || null;
+
+      if (!fullName) return alert('Repository name is required');
+      const name = fullName.split('/')[1] || fullName;
+
+      await fetch('/api/github/repos', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, fullName, description: desc, projectId, stargazersCount: 0 })
+      });
+
+      closeModal('modal-repo');
+      document.getElementById('new-repo-name').value = '';
+      document.getElementById('new-repo-desc').value = '';
+      refreshAllData();
+    }
+
+    // ==========================================
+    // Phase 2: LeetCode & NeetCode API & Rendering
+    // ==========================================
+    async function loadDSAData() {
+      const [topicsRes, problemsRes, statsRes] = await Promise.all([
+        fetch('/api/dsa/topics'),
+        fetch('/api/dsa/problems'),
+        fetch('/api/dsa/stats')
+      ]);
+
+      dsaTopics = (await topicsRes.json()).data || [];
+      dsaProblems = (await problemsRes.json()).data || [];
+      dsaStats = (await statsRes.json()).data || null;
+
+      renderDSAView();
+    }
+
+    function renderDSAView() {
+      // Populate topics dropdown
+      const topicSel = document.getElementById('dsa-topic-filter');
+      topicSel.innerHTML = '<option value="">All Topics</option>' + 
+        dsaTopics.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+
+      // Render stats bar
+      if (dsaStats) {
+        document.getElementById('dsa-progress-text').textContent = `${dsaStats.masteryPercentage}% Mastered (${dsaStats.solved}/${dsaStats.total})`;
+        document.getElementById('dsa-progress-bar').style.width = `${dsaStats.masteryPercentage}%`;
+        document.getElementById('dsa-solved-count').textContent = `✅ Solved: ${dsaStats.solved}`;
+        document.getElementById('dsa-attempted-count').textContent = `⏳ Attempted: ${dsaStats.attempted}`;
+        document.getElementById('dsa-revision-count').textContent = `🔄 Needs Revision: ${dsaStats.revisionNeeded}`;
+      }
+
+      filterDSAProblems();
+    }
+
+    function filterDSAProblems() {
+      const selectedTopic = document.getElementById('dsa-topic-filter').value;
+      const filtered = selectedTopic ? dsaProblems.filter(p => p.topicId === selectedTopic) : dsaProblems;
+      const tbody = document.getElementById('dsa-problems-table');
+
+      tbody.innerHTML = filtered.map(p => `
+        <tr class="hover:bg-slate-800/40 transition">
+          <td class="p-3 font-medium">
+            <div class="flex items-center space-x-2">
+              <a href="${p.leetcodeUrl}" target="_blank" class="hover:text-indigo-400 font-semibold">${p.title}</a>
+              <span class="text-[9px] px-1 rounded bg-indigo-500/10 text-indigo-400 mono">NeetCode</span>
+            </div>
+          </td>
+          <td class="p-3 text-slate-400 font-mono text-[11px]">${p.topicId}</td>
+          <td class="p-3">
+            <span class="px-1.5 py-0.5 rounded text-[10px] font-mono uppercase ${
+              p.difficulty === 'easy' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+              p.difficulty === 'medium' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+              'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+            }">${p.difficulty}</span>
+          </td>
+          <td class="p-3">
+            <select onchange="updateDSAStatus('${p.id}', this.value)" class="bg-slate-950 border border-slate-800 rounded px-2 py-0.5 text-[11px] text-white">
+              <option value="pending" ${p.status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="attempted" ${p.status === 'attempted' ? 'selected' : ''}>Attempted</option>
+              <option value="solved" ${p.status === 'solved' ? 'selected' : ''}>Solved</option>
+              <option value="revision_needed" ${p.status === 'revision_needed' ? 'selected' : ''}>Needs Revision</option>
+            </select>
+          </td>
+          <td class="p-3 font-mono text-[11px] text-slate-400">${p.nextRevisionDate || '—'}</td>
+          <td class="p-3 text-right">
+            <a href="${p.leetcodeUrl}" target="_blank" class="px-2 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] mono">
+              Solve ↗
+            </a>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function updateDSAStatus(problemId, status) {
+      await fetch(`/api/dsa/problems/${problemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      refreshAllData();
+    }
+
+    // ==========================================
+    // Phase 2: Heatmap API & Rendering
+    // ==========================================
+    async function loadHeatmap() {
+      const res = await fetch('/api/analytics/heatmap?days=60');
+      const data = await res.json();
+      heatmapData = data.data || null;
+      renderHeatmap();
+    }
+
+    function renderHeatmap() {
+      if (!heatmapData) return;
+
+      document.getElementById('heatmap-current-streak').textContent = `${heatmapData.currentStreak} Days`;
+      document.getElementById('heatmap-longest-streak').textContent = `${heatmapData.longestStreak} Days`;
+      document.getElementById('heatmap-total-contributions').textContent = heatmapData.totalContributions;
+
+      // Color mapping
+      const getColor = (cnt) => {
+        if (cnt === 0) return 'bg-slate-900 border border-slate-800/80';
+        if (cnt <= 2) return 'bg-indigo-950 border border-indigo-900';
+        if (cnt <= 4) return 'bg-indigo-700 border border-indigo-600';
+        if (cnt <= 7) return 'bg-indigo-500 border border-indigo-400';
+        return 'bg-emerald-400 border border-emerald-300';
+      };
+
+      // Full 60-day grid
+      const grid = document.getElementById('full-heatmap-grid');
+      grid.innerHTML = heatmapData.contributions.map(c => `
+        <div class="h-4 w-4 rounded-sm ${getColor(c.count)} transition-all hover:scale-125 cursor-pointer" 
+             title="${c.date}: ${c.count} contributions (${c.breakdown.tasks} tasks, ${c.breakdown.github} git, ${c.breakdown.dsa} dsa)"></div>
+      `).join('');
+
+      // Dashboard strip (last 30 days)
+      const strip = document.getElementById('dash-heatmap-strip');
+      strip.innerHTML = heatmapData.contributions.slice(-30).map(c => `
+        <div class="h-5 w-5 rounded-sm ${getColor(c.count)} flex-shrink-0 transition-all hover:scale-110" 
+             title="${c.date}: ${c.count} contributions"></div>
+      `).join('');
+    }
+
     // Daily Priorities (Top 3 Rocks)
     async function loadPriorities() {
       const res = await fetch('/api/daily/priorities');
@@ -588,7 +980,6 @@
         `;
       }).join('');
 
-      // Populate input fields in daily tab
       priorities.forEach(p => {
         const input = document.getElementById(`rock-${p.rank}`);
         if (input) input.value = p.customTitle || '';
@@ -615,7 +1006,7 @@
       refreshAllData();
     }
 
-    // Pomodoro Focus Timer
+    // Pomodoro Timer
     function toggleTimer() {
       const btn = document.getElementById('timer-btn');
       if (isTimerRunning) {
@@ -666,7 +1057,7 @@
         `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
     }
 
-    // Automated Standup Generator
+    // Standup Generator
     async function generateStandupReport() {
       const res = await fetch('/api/daily/standup');
       const data = await res.json();
@@ -697,8 +1088,8 @@
       const renderItem = (a) => `
         <div class="flex items-start space-x-3 text-xs p-2 rounded hover:bg-slate-800/40 transition">
           <div class="h-2 w-2 rounded-full mt-1.5 flex-shrink-0 ${
-            a.eventType.includes('completed') ? 'bg-emerald-400' :
-            a.eventType.includes('created') ? 'bg-indigo-400' : 'bg-slate-400'
+            a.eventType.includes('solved') || a.eventType.includes('completed') || a.eventType.includes('merged') ? 'bg-emerald-400' :
+            a.eventType.includes('created') || a.eventType.includes('opened') ? 'bg-indigo-400' : 'bg-slate-400'
           }"></div>
           <div class="flex-1 min-w-0">
             <p class="text-slate-200 font-medium truncate">${a.title}</p>
@@ -724,14 +1115,20 @@
     }
 
     function updateDashboardStats() {
-      const completedToday = tasks.filter(t => t.status === 'completed').length;
       const inProgress = tasks.filter(t => t.status === 'in_progress').length;
-      const completedRocks = priorities.filter(p => p.isCompleted).length;
-
-      document.getElementById('stat-rocks').textContent = `${completedRocks}/3`;
-      document.getElementById('stat-projects').textContent = projects.length;
       document.getElementById('stat-in-progress').textContent = inProgress;
-      document.getElementById('stat-completed').textContent = completedToday;
+
+      if (heatmapData) {
+        document.getElementById('stat-streak').textContent = `🔥 ${heatmapData.currentStreak} Days`;
+      }
+
+      if (dsaStats) {
+        document.getElementById('stat-dsa').textContent = `${dsaStats.solved}/${dsaStats.total}`;
+        document.getElementById('stat-dsa-pct').textContent = `${dsaStats.masteryPercentage}% Mastered`;
+      }
+
+      const openPRs = githubPRs.filter(p => p.state === 'open').length;
+      document.getElementById('stat-prs').textContent = openPRs;
     }
 
     // Modals
