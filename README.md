@@ -73,7 +73,13 @@
 - Personal engineering memory: Architecture decisions, database schemas, debugging notes, and system design specs.
 - Markdown viewer with category filtering and tag search.
 
-### 12. Global Raycast-Style Command Palette (`⌘K`)
+### 12. 3rd-Party Integrations Hub & Webhooks (`/integrations`)
+- **Live GitHub Sync**: Connect Personal Access Token (PAT) or username to synchronize real repositories, recent commits, and pull requests directly into local SQLite.
+- **LeetCode GraphQL Integration**: Connect public LeetCode handle to query `leetcode.com/graphql`, pulling total solved problems (Easy, Medium, Hard) and matching recent submissions to automatically progress the NeetCode 150 matrix.
+- **Inbound GitHub Webhooks**: Webhook endpoint (`/api/integrations/github/webhook`) listening for `push` and `pull_request` events to update telemetry in real time.
+- **Local Token Masking**: Personal Access Tokens and secrets are stored in local SQLite and masked in the UI.
+
+### 13. Global Raycast-Style Command Palette (`⌘K`)
 - Press `⌘K` or click the search bar anywhere in the app to open the Raycast-style command palette for instant keyboard navigation across all modules and utilities.
 
 ---
