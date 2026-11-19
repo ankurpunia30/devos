@@ -263,7 +263,6 @@ export default function DSAPage() {
                 <RotateCcw className={`h-3.5 w-3.5 ${syncingLeetCode ? 'animate-spin' : ''}`} />
                 <span>{syncingLeetCode ? 'Syncing...' : 'Re-sync'}</span>
               </button>
-              <DomainCopilot agentId="dsa_agent" triggerLabel="Ask LeetCode Agent" />
             </div>
           </div>
 

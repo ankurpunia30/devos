@@ -78,12 +78,12 @@ export function DomainCopilot({
 
   return (
     <>
-      {/* Trigger Button */}
+      {/* Trigger Button - Clean, Distraction-Free High Craft */}
       <button
         onClick={() => setIsOpen(true)}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-gradient-to-r ${agent.gradient} text-white text-xs font-semibold shadow-glow-sm hover:opacity-95 transition-all cursor-pointer active:scale-95 ${className}`}
+        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-surface-900 hover:bg-surface-800 text-surface-200 hover:text-white border border-white/[0.1] hover:border-white/[0.2] text-xs font-medium transition-all shadow-sm cursor-pointer active:scale-[0.98] ${className}`}
       >
-        <Sparkles className="h-3.5 w-3.5" />
+        <Sparkles className="h-3.5 w-3.5 text-brand-400 shrink-0" />
         <span>{triggerLabel || `Ask ${agent.name.split(' ')[0]} Agent`}</span>
       </button>
 

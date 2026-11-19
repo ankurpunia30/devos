@@ -80,11 +80,11 @@ export function Sidebar() {
         {/* Brand Header */}
         <div className="flex items-center justify-between px-2 pt-1 pb-1">
           <Link href="/dashboard" className="flex items-center space-x-2.5 hover:opacity-90 transition">
-            <DevOSLogo size={32} />
+            <DevOSLogo size={28} />
             <div>
               <div className="flex items-center gap-1.5">
                 <h1 className="font-semibold text-sm tracking-tight text-white font-sans">DevOS</h1>
-                <span className="text-[9px] px-1.5 py-0.2 rounded bg-brand-500/15 text-brand-300 font-mono font-medium border border-brand-500/25">
+                <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.06] text-surface-400 font-mono">
                   v2.0
                 </span>
               </div>
@@ -95,8 +95,8 @@ export function Sidebar() {
 
         {/* Core Navigation */}
         <div className="space-y-1">
-          <p className="px-2.5 text-[10px] font-mono uppercase tracking-wider text-surface-500 font-semibold mb-1">
-            Productivity & DSA
+          <p className="px-2.5 text-[10px] font-mono uppercase tracking-wider text-surface-500 font-medium mb-1">
+            Productivity & Execution
           </p>
           <nav className="space-y-0.5">
             {coreNavigation.map((item) => {
@@ -106,19 +106,16 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     isActive
-                      ? 'bg-brand-500/15 text-brand-200 font-semibold border border-brand-500/30 shadow-sm'
-                      : 'text-surface-400 hover:text-surface-100 hover:bg-surface-900/60'
+                      ? 'bg-white/[0.08] text-white font-medium'
+                      : 'text-surface-400 hover:text-surface-200 hover:bg-white/[0.04]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-brand-400' : 'text-surface-500 group-hover:text-surface-300'}`} />
+                    <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-surface-500 group-hover:text-surface-300'}`} />
                     <span>{item.name}</span>
                   </div>
-                  {isActive && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-brand-400 shadow-glow-sm" />
-                  )}
                 </Link>
               );
             })}
@@ -127,7 +124,7 @@ export function Sidebar() {
 
         {/* Engineering Lifecycle Navigation */}
         <div className="space-y-1 pt-1">
-          <p className="px-2.5 text-[10px] font-mono uppercase tracking-wider text-surface-500 font-semibold mb-1">
+          <p className="px-2.5 text-[10px] font-mono uppercase tracking-wider text-surface-500 font-medium mb-1">
             Lifecycle & Intelligence
           </p>
           <nav className="space-y-0.5">
@@ -138,19 +135,16 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     isActive
-                      ? 'bg-brand-500/15 text-brand-200 font-semibold border border-brand-500/30 shadow-sm'
-                      : 'text-surface-400 hover:text-surface-100 hover:bg-surface-900/60'
+                      ? 'bg-white/[0.08] text-white font-medium'
+                      : 'text-surface-400 hover:text-surface-200 hover:bg-white/[0.04]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-brand-400' : 'text-surface-500 group-hover:text-surface-300'}`} />
+                    <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-surface-500 group-hover:text-surface-300'}`} />
                     <span>{item.name}</span>
                   </div>
-                  {isActive && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-brand-400 shadow-glow-sm" />
-                  )}
                 </Link>
               );
             })}
@@ -159,7 +153,7 @@ export function Sidebar() {
 
         {/* Developer Utilities Navigation */}
         <div className="space-y-1 pt-1">
-          <p className="px-2.5 text-[10px] font-mono uppercase tracking-wider text-surface-500 font-semibold mb-1">
+          <p className="px-2.5 text-[10px] font-mono uppercase tracking-wider text-surface-500 font-medium mb-1">
             Engineering Vault
           </p>
           <nav className="space-y-0.5">
@@ -170,19 +164,16 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
-                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                  className={`group flex items-center justify-between px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     isActive
-                      ? 'bg-brand-500/15 text-brand-200 font-semibold border border-brand-500/30 shadow-sm'
-                      : 'text-surface-400 hover:text-surface-100 hover:bg-surface-900/60'
+                      ? 'bg-white/[0.08] text-white font-medium'
+                      : 'text-surface-400 hover:text-surface-200 hover:bg-white/[0.04]'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-brand-400' : 'text-surface-500 group-hover:text-surface-300'}`} />
+                    <Icon className={`h-4 w-4 transition-colors ${isActive ? 'text-white' : 'text-surface-500 group-hover:text-surface-300'}`} />
                     <span>{item.name}</span>
                   </div>
-                  {isActive && (
-                    <span className="h-1.5 w-1.5 rounded-full bg-brand-400 shadow-glow-sm" />
-                  )}
                 </Link>
               );
             })}
@@ -193,13 +184,10 @@ export function Sidebar() {
       {/* Quick Capture & User Profile */}
       <div className="space-y-3 pt-3 border-t border-white/[0.06]">
         {/* Quick Capture Card */}
-        <div className="p-2.5 rounded-xl bg-surface-900/70 border border-white/[0.06] shadow-specular">
+        <div className="p-2 rounded-xl bg-surface-900/50 border border-white/[0.05]">
           <div className="flex items-center justify-between text-[10px] text-surface-400 mb-1 font-mono">
-            <span className="flex items-center gap-1">
-              <Sparkles className="h-3 w-3 text-brand-400" />
-              Quick Capture
-            </span>
-            <kbd className="px-1.5 py-0.5 rounded bg-surface-800 border border-white/10 text-[9px] text-surface-400">↵</kbd>
+            <span>Quick Capture</span>
+            <kbd className="px-1 py-0.2 rounded bg-white/[0.06] border border-white/5 text-[9px] text-surface-400">↵</kbd>
           </div>
           <input
             type="text"
@@ -207,23 +195,23 @@ export function Sidebar() {
             onChange={(e) => setQuickCapture(e.target.value)}
             onKeyDown={handleQuickCapture}
             disabled={isSubmitting}
-            placeholder="Type idea or task..."
-            className="w-full bg-surface-950/80 border border-white/[0.08] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-surface-500 focus:outline-none focus:border-brand-500/60 focus:ring-1 focus:ring-brand-500/30 transition-all font-sans"
+            placeholder="Type task e.g. #p:high..."
+            className="w-full bg-surface-950 border border-white/[0.06] rounded-lg px-2.5 py-1.5 text-xs text-white placeholder-surface-500 focus:outline-none focus:border-white/20 transition-all font-sans"
           />
         </div>
 
         {/* User Card */}
-        <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-surface-900/40 border border-white/[0.04]">
-          <div className="flex items-center space-x-2.5">
-            <div className="h-7 w-7 rounded-lg bg-gradient-to-tr from-brand-500 to-indigo-500 flex items-center justify-center font-bold text-[11px] text-white shadow-sm">
+        <div className="flex items-center justify-between px-2 py-1.5 rounded-lg bg-surface-900/30 border border-white/[0.04]">
+          <div className="flex items-center space-x-2">
+            <div className="h-6 w-6 rounded-md bg-white/[0.1] border border-white/[0.08] flex items-center justify-center font-bold text-[10px] text-white">
               LE
             </div>
             <div className="text-xs overflow-hidden leading-tight">
-              <p className="font-medium text-surface-200 truncate">Lead Engineer</p>
-              <p className="text-surface-500 truncate font-mono text-[9px]">SQLite WAL Active</p>
+              <p className="font-medium text-surface-200 truncate text-[11px]">Lead Engineer</p>
+              <p className="text-surface-500 truncate font-mono text-[9px]">Local SQLite WAL</p>
             </div>
           </div>
-          <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-glow-sm" title="Online" />
+          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400/80" title="Online" />
         </div>
       </div>
     </aside>
