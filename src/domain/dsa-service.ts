@@ -1,6 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 import { randomUUID } from 'node:crypto';
-import type { DSATopic, DSAProblem, DSASubmission, DSAStatus, DSADifficulty } from '../types.ts';
+import type { DSATopic, DSAProblem, DSASubmission, DSAStatus, DSADifficulty, DSAStats } from '../types.ts';
 import { ActivityBus } from './activity-bus.ts';
 
 export class DSAService {
@@ -159,7 +159,7 @@ export class DSAService {
     };
   }
 
-  public getStats(userId: string) {
+  public getStats(userId: string): DSAStats {
     const totalRow = this.db.prepare('SELECT COUNT(*) as total FROM dsa_problems WHERE user_id = ?').get(userId) as any;
     const solvedRow = this.db.prepare("SELECT COUNT(*) as solved FROM dsa_problems WHERE user_id = ? AND status IN ('solved', 'revision_needed')").get(userId) as any;
     const attemptedRow = this.db.prepare("SELECT COUNT(*) as attempted FROM dsa_problems WHERE user_id = ? AND status = 'attempted'").get(userId) as any;
@@ -183,6 +183,29 @@ export class DSAService {
       ORDER BY t.display_order ASC
     `).all(userId) as any[];
 
+    // Live LeetCode Integration Profile
+    let leetcodeProfile: DSAStats['leetcode'] = null;
+    try {
+      const leetcodeRow = this.db.prepare(`
+        SELECT account_identifier, status, metadata, last_synced_at
+        FROM user_integrations
+        WHERE user_id = ? AND provider = 'leetcode'
+      `).get(userId) as any;
+
+      if (leetcodeRow && leetcodeRow.status === 'connected') {
+        const meta = JSON.parse(leetcodeRow.metadata || '{}');
+        leetcodeProfile = {
+          connected: true,
+          username: leetcodeRow.account_identifier,
+          totalSolved: meta.totalSolved || 0,
+          easySolved: meta.easy || 0,
+          mediumSolved: meta.medium || 0,
+          hardSolved: meta.hard || 0,
+          lastSyncedAt: leetcodeRow.last_synced_at || null,
+        };
+      }
+    } catch {}
+
     return {
       total,
       solved,
@@ -196,6 +219,7 @@ export class DSAService {
         solved: ts.solved || 0,
         percentage: ts.total > 0 ? Math.round(((ts.solved || 0) / ts.total) * 100) : 0,
       })),
+      leetcode: leetcodeProfile,
     };
   }
 

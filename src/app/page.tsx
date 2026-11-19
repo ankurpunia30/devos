@@ -6,6 +6,7 @@ import {
   heatmapService,
   activityBus,
   dailyService,
+  integrationService,
 } from '@/lib/services';
 import { DEFAULT_USER_ID } from '@/db/client';
 import Link from 'next/link';
@@ -36,6 +37,7 @@ export default async function DashboardPage() {
     heatmap,
     priorities,
     recentActivities,
+    integrations,
   ] = await Promise.all([
     taskService.getTasks(DEFAULT_USER_ID),
     projectService.getProjects(DEFAULT_USER_ID),
@@ -44,7 +46,10 @@ export default async function DashboardPage() {
     heatmapService.getHeatmap(DEFAULT_USER_ID, 35),
     dailyService.getDailyPriorities(DEFAULT_USER_ID, today),
     activityBus.getRecentActivities(DEFAULT_USER_ID, 6),
+    integrationService.getIntegrations(DEFAULT_USER_ID),
   ]);
+
+  const ghIntegration = integrations.find((i) => i.provider === 'github' && i.status === 'connected');
 
   const inProgressTasks = tasks.filter((t) => t.status === 'in_progress').length;
   const completedToday = tasks.filter((t) => t.status === 'completed').length;
@@ -91,6 +96,11 @@ export default async function DashboardPage() {
             You have <span className="text-brand-300 font-medium">{inProgressTasks} active tickets</span> in flight,{' '}
             <span className="text-purple-300 font-medium">{openPRs} pending PRs</span> awaiting review, and a{' '}
             <span className="text-amber-300 font-medium">{heatmap.currentStreak}-day continuous streak</span>.
+            {dsaStats.leetcode?.connected && (
+              <span className="block mt-1 text-[11px] text-emerald-400 font-mono">
+                ⚡ LeetCode verified: @{dsaStats.leetcode.username} with {dsaStats.leetcode.totalSolved} AC solutions ({dsaStats.leetcode.easySolved}E • {dsaStats.leetcode.mediumSolved}M • {dsaStats.leetcode.hardSolved}H)
+              </span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-2.5">
@@ -134,31 +144,60 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        {/* NeetCode 150 Card */}
-        <div className="card-linear p-4 space-y-3">
+        {/* NeetCode 150 & LeetCode Card */}
+        <Link href="/dsa" className="card-linear p-4 space-y-3 block hover:border-emerald-500/40 transition-all group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-surface-400">NeetCode 150</span>
+            <span className="text-xs font-medium text-surface-400 group-hover:text-emerald-400 transition-colors">
+              {dsaStats.leetcode?.connected ? 'LeetCode Profile' : 'NeetCode 150'}
+            </span>
             <div className="h-7 w-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
               <CheckCircle2 className="h-4 w-4 text-emerald-400" />
             </div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-white font-mono tracking-tight">
-              {dsaStats.solved} <span className="text-sm font-normal text-surface-500">/ {dsaStats.total}</span>
-            </div>
-            <p className="text-[11px] text-emerald-400/90 font-medium mt-0.5">
-              {dsaStats.masteryPercentage}% Curriculum Solved
-            </p>
+            {dsaStats.leetcode?.connected ? (
+              <div>
+                <div className="flex items-baseline gap-2">
+                  <span className="text-2xl font-bold text-white font-mono tracking-tight">
+                    {dsaStats.leetcode.totalSolved}
+                  </span>
+                  <span className="text-xs font-mono text-emerald-400 font-semibold truncate">
+                    @{dsaStats.leetcode.username}
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5 text-[10px] font-mono mt-1">
+                  <span className="text-emerald-400 font-semibold">{dsaStats.leetcode.easySolved}E</span>
+                  <span className="text-surface-600">•</span>
+                  <span className="text-amber-400 font-semibold">{dsaStats.leetcode.mediumSolved}M</span>
+                  <span className="text-surface-600">•</span>
+                  <span className="text-rose-400 font-semibold">{dsaStats.leetcode.hardSolved}H</span>
+                  <span className="text-surface-400 ml-auto font-mono text-[9px]">
+                    {dsaStats.solved}/{dsaStats.total} roadmap
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <div className="text-2xl font-bold text-white font-mono tracking-tight">
+                  {dsaStats.solved} <span className="text-sm font-normal text-surface-500">/ {dsaStats.total}</span>
+                </div>
+                <p className="text-[11px] text-emerald-400/90 font-medium mt-0.5">
+                  {dsaStats.masteryPercentage}% Curriculum Solved
+                </p>
+              </div>
+            )}
           </div>
           <div className="h-1.5 w-full bg-surface-800 rounded-full overflow-hidden">
-            <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full" style={{ width: `${dsaStats.masteryPercentage}%` }} />
+            <div className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500" style={{ width: `${dsaStats.masteryPercentage}%` }} />
           </div>
-        </div>
+        </Link>
 
         {/* Pull Requests Card */}
-        <div className="card-linear p-4 space-y-3">
+        <Link href="/github" className="card-linear p-4 space-y-3 block hover:border-purple-500/40 transition-all group">
           <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-surface-400">Open Pull Requests</span>
+            <span className="text-xs font-medium text-surface-400 group-hover:text-purple-400 transition-colors">
+              {ghIntegration ? 'GitHub Synced' : 'Open Pull Requests'}
+            </span>
             <div className="h-7 w-7 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
               <GitPullRequest className="h-4 w-4 text-purple-400" />
             </div>
@@ -168,13 +207,13 @@ export default async function DashboardPage() {
               {openPRs} <span className="text-sm font-normal text-surface-500">In Review</span>
             </div>
             <p className="text-[11px] text-purple-400/90 font-medium mt-0.5">
-              {prs.length} total monitored PRs
+              {ghIntegration ? `@${ghIntegration.accountIdentifier} • ` : ''}{prs.length} monitored PRs
             </p>
           </div>
           <div className="h-1.5 w-full bg-surface-800 rounded-full overflow-hidden">
             <div className="h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full" style={{ width: `${openPRs > 0 ? 60 : 10}%` }} />
           </div>
-        </div>
+        </Link>
 
         {/* Tasks Card */}
         <div className="card-linear p-4 space-y-3">

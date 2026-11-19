@@ -220,6 +220,30 @@ export interface DSASubmission {
   submittedAt: string;
 }
 
+export interface DSAStats {
+  total: number;
+  solved: number;
+  attempted: number;
+  revisionNeeded: number;
+  masteryPercentage: number;
+  topics: Array<{
+    id: string;
+    name: string;
+    total: number;
+    solved: number;
+    percentage: number;
+  }>;
+  leetcode?: {
+    connected: boolean;
+    username: string;
+    totalSolved: number;
+    easySolved: number;
+    mediumSolved: number;
+    hardSolved: number;
+    lastSyncedAt?: string | null;
+  } | null;
+}
+
 // ==========================================
 // Phase 2: Activity Heatmap Types
 // ==========================================

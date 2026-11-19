@@ -1,4 +1,4 @@
-import { githubService } from '@/lib/services';
+import { githubService, integrationService } from '@/lib/services';
 import { DEFAULT_USER_ID } from '@/db/client';
 import {
   GitBranch,
@@ -11,16 +11,18 @@ import {
   Clock,
   Plus,
   RotateCcw,
+  Zap,
 } from 'lucide-react';
 import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
 export default async function GitHubPage() {
-  const [repos, prs, commits] = await Promise.all([
+  const [repos, prs, commits, ghIntegration] = await Promise.all([
     githubService.getRepositories(DEFAULT_USER_ID),
     githubService.getPullRequests(DEFAULT_USER_ID),
     githubService.getRecentCommits(DEFAULT_USER_ID, 12),
+    integrationService.getIntegration(DEFAULT_USER_ID, 'github'),
   ]);
 
   const getReviewStatusPill = (status: string) => {
@@ -67,6 +69,35 @@ export default async function GitHubPage() {
           <span>Configure / Sync GitHub</span>
         </Link>
       </div>
+
+      {ghIntegration && ghIntegration.status === 'connected' ? (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-surface-900 via-surface-900 to-purple-950/20 border border-purple-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-xl bg-purple-500/10 border border-purple-500/20 flex items-center justify-center">
+              <Zap className="h-5 w-5 text-purple-400" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-bold text-white">Connected GitHub Profile:</span>
+                <span className="text-xs font-mono font-semibold text-purple-300">@{ghIntegration.accountIdentifier}</span>
+                <span className="pill-badge bg-emerald-500/15 text-emerald-300 border-emerald-500/30 text-[10px]">
+                  Active Telemetry
+                </span>
+              </div>
+              <p className="text-[11px] text-surface-400">
+                Last synced: {ghIntegration.lastSyncedAt ? new Date(ghIntegration.lastSyncedAt).toLocaleString() : 'Just now'} • Webhooks & API v3 polling active
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/integrations"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/30 text-xs font-semibold transition-all self-start sm:self-auto"
+          >
+            <span>Manage Token / Webhooks</span>
+            <ExternalLink className="h-3 w-3" />
+          </Link>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="card-linear p-4 space-y-1">
