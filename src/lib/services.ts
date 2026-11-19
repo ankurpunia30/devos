@@ -29,7 +29,8 @@ const globalForServices = globalThis as unknown as {
   integrationService?: IntegrationService;
 };
 
-const db = globalForServices.db || createDatabase('./devos.db');
+const dbPath = process.env.DEVOS_DB_PATH || (process.env.VERCEL ? '/tmp/devos.db' : './devos.db');
+const db = globalForServices.db || createDatabase(dbPath);
 if (process.env.NODE_ENV !== 'production') globalForServices.db = db;
 
 export const activityBus = globalForServices.activityBus || new ActivityBus(db);

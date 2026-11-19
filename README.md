@@ -114,3 +114,22 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 npm run build
 npm start
 ```
+
+---
+
+## 🚀 CI/CD & Deployment
+
+### GitHub Actions Pipeline
+The repository includes an automated CI/CD workflow at [`.github/workflows/ci.yml`](.github/workflows/ci.yml) that:
+1. Runs all unit and integration test suites on Node.js 22 LTS on every push and pull request.
+2. Compiles all Next.js App Router routes and validates TypeScript types.
+3. Deploys to Vercel (Preview for PRs, Production for `main`) when repository secrets (`VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`) are configured.
+
+### Deploying to Vercel
+DevOS is ready for 1-click deployment on Vercel:
+- **Zero Config**: Next.js 16 with Webpack configuration is pre-configured via [`vercel.json`](vercel.json).
+- **Serverless SQLite Compatibility**: In Vercel serverless environments, DevOS automatically utilizes `/tmp/devos.db` with WAL mode and schema initialization.
+- **Git Integration**: Simply import the repository in your Vercel Dashboard, or deploy directly with the Vercel CLI:
+  ```bash
+  npx vercel
+  ```
