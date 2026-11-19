@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevOS — Personal Developer Operating System</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50: '#eef2ff', 500: '#6366f1', 600: '#4f46e5', 700: '#4338ca' },
+            surface: { 800: '#1e293b', 900: '#0f172a', 950: '#020617' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    code, .mono { font-family: 'JetBrains Mono', monospace; }
+  </style>
+</head>
+<body class="bg-surface-950 text-slate-100 flex h-screen overflow-hidden antialiased">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="w-64 border-r border-slate-800 bg-surface-900 flex flex-col justify-between p-4 flex-shrink-0">
+    <div class="space-y-6">
+      <!-- DevOS Brand Header -->
+      <div class="flex items-center space-x-3 px-2">
+        <div class="h-9 w-9 rounded-lg bg-indigo-600 flex items-center justify-center font-bold text-white shadow-lg shadow-indigo-500/20">
+          ⚡
+        </div>
+        <div>
+          <h1 class="font-bold text-base tracking-tight text-white flex items-center gap-1.5">
+            DevOS <span class="text-[10px] px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-400 font-mono border border-indigo-500/20">v1.0</span>
+          </h1>
+          <p class="text-xs text-slate-400">Developer Operating System</p>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="space-y-1">
+        <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium bg-slate-800 text-white transition-all">
+          <span>📊</span> <span>Dashboard</span>
+        </button>
+        <button onclick="switchTab('tasks')" id="nav-tasks" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
+          <span>📋</span> <span>Task Kanban</span>
+        </button>
+        <button onclick="switchTab('projects')" id="nav-projects" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
+          <span>🚀</span> <span>Project Hub</span>
+        </button>
+        <button onclick="switchTab('daily')" id="nav-daily" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
+          <span>⏱️</span> <span>My Day & Standup</span>
+        </button>
+        <button onclick="switchTab('activities')" id="nav-activities" class="nav-btn w-full flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium text-slate-400 hover:text-slate-100 hover:bg-slate-800/50 transition-all">
+          <span>📡</span> <span>Activity Stream</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Quick Capture Trigger & User Info -->
+    <div class="space-y-4">
+      <div class="p-3 rounded-lg bg-slate-800/40 border border-slate-700/50">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-1.5">
+          <span>Quick Capture</span>
+          <kbd class="px-1.5 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] mono">Enter</kbd>
+        </div>
+        <input type="text" id="sidebar-quick-capture" placeholder="Type idea or 'todo: ...'" 
+          class="w-full bg-slate-900 border border-slate-700 rounded px-2.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition-colors"
+          onkeydown="if(event.key === 'Enter') handleQuickCapture(this.value, this)" />
+      </div>
+
+      <div class="flex items-center space-x-3 px-2 pt-2 border-t border-slate-800">
+        <div class="h-8 w-8 rounded-full bg-indigo-500 flex items-center justify-center font-bold text-xs text-white">LE</div>
+        <div class="text-xs overflow-hidden">
+          <p class="font-medium text-slate-200 truncate">Lead Engineer</p>
+          <p class="text-slate-500 truncate mono text-[10px]">usr_devos_root</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEW CONTAINER -->
+  <main class="flex-1 flex flex-col overflow-y-auto">
+    <!-- Top Header -->
+    <header class="h-14 border-b border-slate-800 bg-surface-900/60 backdrop-blur px-8 flex items-center justify-between flex-shrink-0">
+      <h2 id="view-title" class="text-sm font-semibold text-slate-200 flex items-center gap-2">
+        <span>Executive Dashboard</span>
+      </h2>
+      <div class="flex items-center space-x-3">
+        <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-mono bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+          ● Activity Bus Live
+        </span>
+        <button onclick="refreshAllData()" class="px-2.5 py-1 text-xs font-medium text-slate-300 bg-slate-800 hover:bg-slate-700 rounded border border-slate-700 transition">
+          ↻ Refresh
+        </button>
+      </div>
+    </header>
+
+    <!-- TAB 1: UNIFIED DASHBOARD -->
+    <div id="tab-dashboard" class="tab-pane p-8 space-y-6">
+      <!-- Metric Highlights -->
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="p-4 rounded-xl bg-surface-900 border border-slate-800">
+          <p class="text-xs text-slate-400 font-medium">Today's Rocks</p>
+          <h3 id="stat-rocks" class="text-2xl font-bold text-white mt-1 mono">0/3</h3>
+          <p class="text-[11px] text-indigo-400 mt-1">High priority goals</p>
+        </div>
+        <div class="p-4 rounded-xl bg-surface-900 border border-slate-800">
+          <p class="text-xs text-slate-400 font-medium">Active Projects</p>
+          <h3 id="stat-projects" class="text-2xl font-bold text-white mt-1 mono">0</h3>
+          <p class="text-[11px] text-emerald-400 mt-1">Tracked milestones</p>
+        </div>
+        <div class="p-4 rounded-xl bg-surface-900 border border-slate-800">
+          <p class="text-xs text-slate-400 font-medium">Tasks In Progress</p>
+          <h3 id="stat-in-progress" class="text-2xl font-bold text-white mt-1 mono">0</h3>
+          <p class="text-[11px] text-amber-400 mt-1">Active sprint items</p>
+        </div>
+        <div class="p-4 rounded-xl bg-surface-900 border border-slate-800">
+          <p class="text-xs text-slate-400 font-medium">Completed Today</p>
+          <h3 id="stat-completed" class="text-2xl font-bold text-white mt-1 mono">0</h3>
+          <p class="text-[11px] text-purple-400 mt-1">Telemetry events</p>
+        </div>
+      </div>
+
+      <!-- Main Dashboard Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left: Today's Priorities + Projects -->
+        <div class="lg:col-span-2 space-y-6">
+          <!-- Top 3 Daily Rocks Widget -->
+          <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                <span>🎯</span> <span>Today's Top 3 Priorities</span>
+              </h3>
+              <button onclick="switchTab('daily')" class="text-xs text-indigo-400 hover:text-indigo-300">Manage ➔</button>
+            </div>
+            <div id="dash-priorities-list" class="space-y-2.5">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Active Projects Progress Widget -->
+          <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+                <span>🚀</span> <span>Active Projects</span>
+              </h3>
+              <button onclick="switchTab('projects')" class="text-xs text-indigo-400 hover:text-indigo-300">All Projects ➔</button>
+            </div>
+            <div id="dash-projects-list" class="space-y-4">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Activity Stream Feed -->
+        <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4 flex flex-col">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-semibold text-white flex items-center gap-2">
+              <span>📡</span> <span>Live Activity Feed</span>
+            </h3>
+            <span class="text-[10px] mono text-slate-500">REALTIME</span>
+          </div>
+          <div id="dash-activity-feed" class="space-y-3 overflow-y-auto max-h-[500px] pr-1">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: TASK KANBAN -->
+    <div id="tab-tasks" class="tab-pane hidden p-8 space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-white">Unified Task Management</h3>
+          <p class="text-xs text-slate-400">Organize sprint backlog, in-progress items, and dependencies</p>
+        </div>
+        <button onclick="openNewTaskModal()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 transition">
+          + New Task
+        </button>
+      </div>
+
+      <!-- Kanban Columns Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4">
+        <!-- Backlog -->
+        <div class="bg-surface-900/60 border border-slate-800 rounded-xl p-3 flex flex-col">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span class="text-xs font-semibold text-slate-400">Backlog</span>
+            <span id="badge-backlog" class="text-[11px] mono px-1.5 py-0.5 rounded bg-slate-800 text-slate-300">0</span>
+          </div>
+          <div id="col-backlog" class="space-y-2 flex-1 min-h-[350px]"></div>
+        </div>
+
+        <!-- Todo -->
+        <div class="bg-surface-900/60 border border-slate-800 rounded-xl p-3 flex flex-col">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span class="text-xs font-semibold text-indigo-400">Todo</span>
+            <span id="badge-todo" class="text-[11px] mono px-1.5 py-0.5 rounded bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">0</span>
+          </div>
+          <div id="col-todo" class="space-y-2 flex-1 min-h-[350px]"></div>
+        </div>
+
+        <!-- In Progress -->
+        <div class="bg-surface-900/60 border border-slate-800 rounded-xl p-3 flex flex-col">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span class="text-xs font-semibold text-amber-400">In Progress</span>
+            <span id="badge-in_progress" class="text-[11px] mono px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20">0</span>
+          </div>
+          <div id="col-in_progress" class="space-y-2 flex-1 min-h-[350px]"></div>
+        </div>
+
+        <!-- Blocked -->
+        <div class="bg-surface-900/60 border border-slate-800 rounded-xl p-3 flex flex-col">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span class="text-xs font-semibold text-rose-400">Blocked</span>
+            <span id="badge-blocked" class="text-[11px] mono px-1.5 py-0.5 rounded bg-rose-500/10 text-rose-300 border border-rose-500/20">0</span>
+          </div>
+          <div id="col-blocked" class="space-y-2 flex-1 min-h-[350px]"></div>
+        </div>
+
+        <!-- Completed -->
+        <div class="bg-surface-900/60 border border-slate-800 rounded-xl p-3 flex flex-col">
+          <div class="flex items-center justify-between mb-3 px-1">
+            <span class="text-xs font-semibold text-emerald-400">Completed</span>
+            <span id="badge-completed" class="text-[11px] mono px-1.5 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">0</span>
+          </div>
+          <div id="col-completed" class="space-y-2 flex-1 min-h-[350px]"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: PROJECT HUB -->
+    <div id="tab-projects" class="tab-pane hidden p-8 space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-white">Project Workspaces</h3>
+          <p class="text-xs text-slate-400">Consolidated hubs for active, learning, and personal software projects</p>
+        </div>
+        <button onclick="openNewProjectModal()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white shadow-lg shadow-indigo-600/30 transition">
+          + New Project
+        </button>
+      </div>
+
+      <div id="projects-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Rendered via JS -->
+      </div>
+    </div>
+
+    <!-- TAB 4: DAILY WORKSPACE & STANDUP -->
+    <div id="tab-daily" class="tab-pane hidden p-8 space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Left: Pomodoro Timer & 3 Rocks -->
+        <div class="space-y-6">
+          <!-- Pomodoro Widget -->
+          <div class="p-6 rounded-xl bg-surface-900 border border-slate-800 text-center space-y-4">
+            <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Pomodoro Focus Timer</span>
+            <div id="timer-display" class="text-5xl font-bold text-white mono my-2">25:00</div>
+            <div class="flex justify-center space-x-3">
+              <button id="timer-btn" onclick="toggleTimer()" class="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white transition">
+                Start Focus
+              </button>
+              <button onclick="resetTimer()" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-medium text-slate-300 transition">
+                Reset
+              </button>
+            </div>
+            <p class="text-[11px] text-slate-500">Each finished session logs directly to your Activity Bus.</p>
+          </div>
+
+          <!-- Top 3 Priorities Manager -->
+          <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4">
+            <h3 class="text-sm font-semibold text-white">Manage Today's 3 Rocks</h3>
+            <div class="space-y-3">
+              <div>
+                <label class="text-[11px] text-slate-400 block mb-1">Priority #1</label>
+                <input id="rock-1" type="text" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white" />
+              </div>
+              <div>
+                <label class="text-[11px] text-slate-400 block mb-1">Priority #2</label>
+                <input id="rock-2" type="text" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white" />
+              </div>
+              <div>
+                <label class="text-[11px] text-slate-400 block mb-1">Priority #3</label>
+                <input id="rock-3" type="text" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white" />
+              </div>
+              <button onclick="saveRocks()" class="w-full py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-indigo-400 transition">
+                Save Daily Rocks
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Automated Standup Generator -->
+        <div class="lg:col-span-2 p-6 rounded-xl bg-surface-900 border border-slate-800 space-y-5 flex flex-col justify-between">
+          <div class="space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <h3 class="text-base font-bold text-white flex items-center gap-2">
+                  <span>📋</span> <span>Automated Daily Standup Generator</span>
+                </h3>
+                <p class="text-xs text-slate-400">Synthesizes actual database activities into structured standup markdown</p>
+              </div>
+              <button onclick="generateStandupReport()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-xs font-semibold text-white transition flex items-center gap-1.5">
+                <span>⚡</span> <span>Generate Report</span>
+              </button>
+            </div>
+
+            <!-- Standup Output Display -->
+            <div class="relative">
+              <textarea id="standup-markdown" rows="14" class="w-full bg-slate-950 border border-slate-800 rounded-lg p-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500 leading-relaxed" placeholder="Click 'Generate Report' to synthesize your daily standup from live task and activity logs..."></textarea>
+              <button onclick="copyStandup()" class="absolute top-3 right-3 px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-[11px] text-slate-300 font-mono transition">
+                📋 Copy Markdown
+              </button>
+            </div>
+          </div>
+
+          <div class="p-3 rounded-lg bg-slate-950 border border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+            <span>Powered by DevOS Activity Bus Grounding (Zero Hallucination)</span>
+            <span class="mono text-indigo-400">100% Grounded</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 5: ACTIVITY STREAM -->
+    <div id="tab-activities" class="tab-pane hidden p-8 space-y-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-white">Universal Activity Journal</h3>
+          <p class="text-xs text-slate-400">Immutable chronological telemetry of all events across tasks, projects, and daily focus</p>
+        </div>
+        <button onclick="loadActivities()" class="px-3 py-1 text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 rounded border border-slate-700">
+          ↻ Refresh
+        </button>
+      </div>
+
+      <div class="bg-surface-900 border border-slate-800 rounded-xl p-5">
+        <div id="full-activity-stream" class="space-y-4">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- MODAL: NEW TASK -->
+  <div id="modal-task" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4 z-50">
+    <div class="bg-surface-900 border border-slate-800 rounded-xl p-6 w-full max-w-md space-y-4 shadow-2xl">
+      <h3 class="text-base font-bold text-white">Create New Task</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Task Title</label>
+          <input id="new-task-title" type="text" placeholder="e.g., Implement Redis token cache" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white" />
+        </div>
+        <div>
+          <label class="text-xs text-slate-400 block mb-1">Description (Optional)</label>
+          <textarea id="new-task-desc" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">Priority</label>
+            <select id="new-task-priority" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white">
+              <option value="medium">Medium</option>
+              <option value="critical">Critical</option>
+              <option value="high">High</option>
+              <option value="low">Low</option>
+            </select>
+          </div>
+          <div>
+            <label class="text-xs text-slate-400 block mb-1">Project</label>
+            <select id="new-task-project" class="w-full bg-slate-950 border border-slate-800 rounded px-3 py-1.5 text-xs text-white">
+              <!-- Rendered via JS -->
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end space-x-2.5 pt-2">
+        <button onclick="closeModal('modal-task')" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs text-slate-300">Cancel</button>
+        <button onclick="submitNewTask()" class="px-4 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-xs font-semibold text-white">Create Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION CORE -->
+  <script>
+    // State
+    let currentTab = 'dashboard';
+    let projects = [];
+    let tasks = [];
+    let activities = [];
+    let priorities = [];
+
+    // Pomodoro Timer State
+    let timerSeconds = 25 * 60;
+    let timerInterval = null;
+    let isTimerRunning = false;
+
+    // Initialization
+    window.addEventListener('DOMContentLoaded', () => {
+      refreshAllData();
+    });
+
+    async function refreshAllData() {
+      await Promise.all([loadProjects(), loadTasks(), loadPriorities(), loadActivities()]);
+      updateDashboardStats();
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => {
+        btn.classList.remove('bg-slate-800', 'text-white');
+        btn.classList.add('text-slate-400');
+      });
+
+      document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+      const activeBtn = document.getElementById(`nav-${tabId}`);
+      activeBtn.classList.add('bg-slate-800', 'text-white');
+      activeBtn.classList.remove('text-slate-400');
+
+      const titles = {
+        dashboard: 'Executive Dashboard',
+        tasks: 'Task Kanban & Sprints',
+        projects: 'Project Workspaces',
+        daily: 'Daily Operations & Standup',
+        activities: 'Universal Activity Journal'
+      };
+      document.getElementById('view-title').textContent = titles[tabId] || 'DevOS';
+      currentTab = tabId;
+    }
+
+    // Projects API
+    async function loadProjects() {
+      const res = await fetch('/api/projects');
+      const data = await res.json();
+      projects = data.data || [];
+      renderProjects();
+      renderProjectSelectOptions();
+    }
+
+    function renderProjects() {
+      const container = document.getElementById('projects-grid');
+      const dashList = document.getElementById('dash-projects-list');
+
+      container.innerHTML = projects.map(p => `
+        <div class="p-5 rounded-xl bg-surface-900 border border-slate-800 space-y-4 hover:border-slate-700 transition">
+          <div class="flex items-start justify-between">
+            <div>
+              <span class="text-[10px] font-mono uppercase tracking-wider text-indigo-400">${p.category}</span>
+              <h4 class="text-base font-bold text-white mt-0.5">${p.name}</h4>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono ${p.status === 'in_progress' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-slate-800 text-slate-400'}">${p.status}</span>
+          </div>
+          <p class="text-xs text-slate-400 line-clamp-2">${p.description}</p>
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-xs font-mono">
+              <span class="text-slate-500">Progress</span>
+              <span class="text-slate-300">${p.progressPercentage}%</span>
+            </div>
+            <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+              <div class="bg-indigo-500 h-full rounded-full transition-all" style="width: ${p.progressPercentage}%"></div>
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-1.5 pt-1">
+            ${p.techStack.map(t => `<span class="px-2 py-0.5 rounded bg-slate-950 text-[10px] text-slate-400 mono border border-slate-800">${t}</span>`).join('')}
+          </div>
+        </div>
+      `).join('');
+
+      dashList.innerHTML = projects.slice(0, 3).map(p => `
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-medium text-slate-200">${p.name}</span>
+            <span class="mono text-indigo-400">${p.progressPercentage}%</span>
+          </div>
+          <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+            <div class="bg-indigo-500 h-full rounded-full" style="width: ${p.progressPercentage}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderProjectSelectOptions() {
+      const sel = document.getElementById('new-task-project');
+      sel.innerHTML = `<option value="">None (Independent)</option>` + 
+        projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+    }
+
+    // Tasks API
+    async function loadTasks() {
+      const res = await fetch('/api/tasks');
+      const data = await res.json();
+      tasks = data.data || [];
+      renderKanban();
+    }
+
+    function renderKanban() {
+      const columns = ['backlog', 'todo', 'in_progress', 'blocked', 'completed'];
+      columns.forEach(col => {
+        const colTasks = tasks.filter(t => t.status === col);
+        document.getElementById(`badge-${col}`).textContent = colTasks.length;
+        const container = document.getElementById(`col-${col}`);
+
+        container.innerHTML = colTasks.map(t => `
+          <div class="p-3 rounded-lg bg-surface-900 border border-slate-800/80 hover:border-slate-700 transition space-y-2 shadow-sm">
+            <div class="flex items-center justify-between">
+              <span class="text-[9px] font-mono px-1.5 py-0.5 rounded uppercase ${
+                t.priority === 'critical' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
+                t.priority === 'high' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                'bg-slate-800 text-slate-400'
+              }">${t.priority}</span>
+              <div class="flex space-x-1">
+                ${col !== 'in_progress' && col !== 'completed' ? `<button onclick="updateTaskStatus('${t.id}', 'in_progress')" title="Start" class="text-xs hover:text-indigo-400">▶</button>` : ''}
+                ${col !== 'completed' ? `<button onclick="updateTaskStatus('${t.id}', 'completed')" title="Complete" class="text-xs hover:text-emerald-400">✓</button>` : ''}
+              </div>
+            </div>
+            <p class="text-xs font-medium text-slate-200 leading-snug">${t.title}</p>
+            ${t.tags && t.tags.length ? `
+              <div class="flex flex-wrap gap-1">
+                ${t.tags.map(tag => `<span class="text-[9px] px-1.5 rounded bg-slate-950 text-slate-400 mono">#${tag}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+        `).join('');
+      });
+    }
+
+    async function updateTaskStatus(taskId, status) {
+      await fetch(`/api/tasks/${taskId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status })
+      });
+      refreshAllData();
+    }
+
+    async function submitNewTask() {
+      const title = document.getElementById('new-task-title').value.trim();
+      const description = document.getElementById('new-task-desc').value.trim();
+      const priority = document.getElementById('new-task-priority').value;
+      const projectId = document.getElementById('new-task-project').value || null;
+
+      if (!title) return alert('Task title is required');
+
+      await fetch('/api/tasks', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title, description, priority, projectId, status: 'todo' })
+      });
+
+      closeModal('modal-task');
+      document.getElementById('new-task-title').value = '';
+      document.getElementById('new-task-desc').value = '';
+      refreshAllData();
+    }
+
+    // Daily Priorities (Top 3 Rocks)
+    async function loadPriorities() {
+      const res = await fetch('/api/daily/priorities');
+      const data = await res.json();
+      priorities = data.data || [];
+      renderPriorities();
+    }
+
+    function renderPriorities() {
+      const dashList = document.getElementById('dash-priorities-list');
+      dashList.innerHTML = [1, 2, 3].map(rank => {
+        const item = priorities.find(p => p.rank === rank);
+        const title = item ? item.customTitle : `Set daily priority #${rank}`;
+        const isDone = item && item.isCompleted;
+
+        return `
+          <div class="flex items-center justify-between p-2.5 rounded-lg bg-slate-950 border border-slate-800/80">
+            <div class="flex items-center space-x-3">
+              <span class="h-5 w-5 rounded bg-indigo-500/10 text-indigo-400 font-mono text-xs flex items-center justify-center font-bold">
+                ${rank}
+              </span>
+              <span class="text-xs ${isDone ? 'line-through text-slate-500' : 'text-slate-200'}">${title}</span>
+            </div>
+            ${item ? `
+              <button onclick="togglePriority('${item.id}')" class="px-2 py-0.5 text-[10px] rounded font-mono ${isDone ? 'bg-emerald-500/20 text-emerald-300' : 'bg-slate-800 text-slate-400 hover:text-white'}">
+                ${isDone ? 'COMPLETED' : 'MARK DONE'}
+              </button>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+
+      // Populate input fields in daily tab
+      priorities.forEach(p => {
+        const input = document.getElementById(`rock-${p.rank}`);
+        if (input) input.value = p.customTitle || '';
+      });
+    }
+
+    async function togglePriority(id) {
+      await fetch(`/api/daily/priorities/${id}/toggle`, { method: 'POST' });
+      refreshAllData();
+    }
+
+    async function saveRocks() {
+      for (let rank = 1; rank <= 3; rank++) {
+        const val = document.getElementById(`rock-${rank}`).value.trim();
+        if (val) {
+          await fetch('/api/daily/priorities', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ rank, customTitle: val })
+          });
+        }
+      }
+      alert('Daily priorities updated.');
+      refreshAllData();
+    }
+
+    // Pomodoro Focus Timer
+    function toggleTimer() {
+      const btn = document.getElementById('timer-btn');
+      if (isTimerRunning) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        btn.textContent = 'Resume Focus';
+        btn.classList.remove('bg-amber-600');
+        btn.classList.add('bg-indigo-600');
+      } else {
+        isTimerRunning = true;
+        btn.textContent = 'Pause Focus';
+        btn.classList.remove('bg-indigo-600');
+        btn.classList.add('bg-amber-600');
+        timerInterval = setInterval(() => {
+          timerSeconds--;
+          if (timerSeconds <= 0) {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            fetch('/api/daily/pomodoro', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ durationMinutes: 25 })
+            });
+            alert('🎉 Pomodoro Completed! 25 minutes logged to activity bus.');
+            resetTimer();
+            refreshAllData();
+          }
+          updateTimerDisplay();
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      timerSeconds = 25 * 60;
+      updateTimerDisplay();
+      const btn = document.getElementById('timer-btn');
+      btn.textContent = 'Start Focus';
+      btn.classList.remove('bg-amber-600');
+      btn.classList.add('bg-indigo-600');
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerSeconds / 60);
+      const secs = timerSeconds % 60;
+      document.getElementById('timer-display').textContent = 
+        `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+
+    // Automated Standup Generator
+    async function generateStandupReport() {
+      const res = await fetch('/api/daily/standup');
+      const data = await res.json();
+      if (data.data) {
+        document.getElementById('standup-markdown').value = data.data.rawMarkdown;
+      }
+    }
+
+    function copyStandup() {
+      const text = document.getElementById('standup-markdown').value;
+      if (!text) return alert('No standup content to copy.');
+      navigator.clipboard.writeText(text);
+      alert('📋 Standup copied to clipboard!');
+    }
+
+    // Activities
+    async function loadActivities() {
+      const res = await fetch('/api/activities?limit=30');
+      const data = await res.json();
+      activities = data.data || [];
+      renderActivities();
+    }
+
+    function renderActivities() {
+      const dashFeed = document.getElementById('dash-activity-feed');
+      const fullFeed = document.getElementById('full-activity-stream');
+
+      const renderItem = (a) => `
+        <div class="flex items-start space-x-3 text-xs p-2 rounded hover:bg-slate-800/40 transition">
+          <div class="h-2 w-2 rounded-full mt-1.5 flex-shrink-0 ${
+            a.eventType.includes('completed') ? 'bg-emerald-400' :
+            a.eventType.includes('created') ? 'bg-indigo-400' : 'bg-slate-400'
+          }"></div>
+          <div class="flex-1 min-w-0">
+            <p class="text-slate-200 font-medium truncate">${a.title}</p>
+            <p class="text-[10px] text-slate-500 mono">${new Date(a.occurredAt).toLocaleTimeString()} • ${a.sourceDomain}</p>
+          </div>
+        </div>
+      `;
+
+      dashFeed.innerHTML = activities.slice(0, 8).map(renderItem).join('') || '<p class="text-xs text-slate-500">No activities recorded yet.</p>';
+      fullFeed.innerHTML = activities.map(renderItem).join('') || '<p class="text-xs text-slate-500">No activities recorded yet.</p>';
+    }
+
+    // Quick Capture
+    async function handleQuickCapture(val, input) {
+      if (!val.trim()) return;
+      await fetch('/api/quick-capture', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: val })
+      });
+      input.value = '';
+      refreshAllData();
+    }
+
+    function updateDashboardStats() {
+      const completedToday = tasks.filter(t => t.status === 'completed').length;
+      const inProgress = tasks.filter(t => t.status === 'in_progress').length;
+      const completedRocks = priorities.filter(p => p.isCompleted).length;
+
+      document.getElementById('stat-rocks').textContent = `${completedRocks}/3`;
+      document.getElementById('stat-projects').textContent = projects.length;
+      document.getElementById('stat-in-progress').textContent = inProgress;
+      document.getElementById('stat-completed').textContent = completedToday;
+    }
+
+    // Modals
+    function openNewTaskModal() {
+      document.getElementById('modal-task').classList.remove('hidden');
+      document.getElementById('modal-task').classList.add('flex');
+    }
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+      document.getElementById(id).classList.remove('flex');
+    }
+  </script>
+</body>
+</html>

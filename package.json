@@ -1,0 +1,21 @@
+{
+  "name": "devos",
+  "version": "1.0.0",
+  "description": "DevOS: The Personal Developer Operating System",
+  "type": "module",
+  "main": "src/server.ts",
+  "scripts": {
+    "start": "node --experimental-strip-types src/server.ts",
+    "dev": "node --experimental-strip-types --watch src/server.ts",
+    "test": "NODE_ENV=test node --experimental-strip-types --test tests/**/*.test.ts"
+  },
+  "keywords": [
+    "developer-os",
+    "productivity",
+    "kanban",
+    "antigravity",
+    "standup-generator"
+  ],
+  "author": "Antigravity Systems Architect",
+  "license": "MIT"
+}
