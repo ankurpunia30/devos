@@ -51,4 +51,16 @@ test('AiAssistantService - Grounded Q&A citations', () => {
   assert.ok(answer.answerMarkdown.includes('Resolve database deadlock under load'));
   assert.equal(answer.citations.length, 1);
   assert.equal(answer.citations[0].entity, 'task');
+
+  // Query 2: Dynamic Multi-Table Search for "deadlock"
+  const searchAnswer = ai.answerGroundedQuery(userId, 'Can you tell me about the deadlock issue?');
+  assert.ok(searchAnswer.answerMarkdown.includes('Matching Sprint Tasks'));
+  assert.ok(searchAnswer.answerMarkdown.includes('Resolve database deadlock under load'));
+  assert.ok(searchAnswer.citations.some(c => c.id.startsWith('task_')));
+
+  // Query 3: Dynamic Live Telemetry Engine (Zero Canned Fallback)
+  const telemetryAnswer = ai.answerGroundedQuery(userId, 'Give me an overview of system telemetry');
+  assert.ok(telemetryAnswer.answerMarkdown.includes('Live Workspace Telemetry Status'));
+  assert.ok(telemetryAnswer.answerMarkdown.includes('Sprint Backlog'));
+  assert.ok(!telemetryAnswer.answerMarkdown.includes('I can only answer'));
 });

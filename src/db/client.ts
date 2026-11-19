@@ -1,9 +1,16 @@
 import { DatabaseSync } from 'node:sqlite';
 import { existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
+import { scryptSync, randomBytes } from 'node:crypto';
 import { SCHEMA_SQL } from './schema.ts';
 
 export const DEFAULT_USER_ID = 'usr_devos_root';
+
+export function hashPassword(password: string, existingSalt?: string): { hash: string; salt: string } {
+  const salt = existingSalt || randomBytes(16).toString('hex');
+  const hash = scryptSync(password, salt, 64).toString('hex');
+  return { hash, salt };
+}
 
 export function createDatabase(dbPath: string = ':memory:'): DatabaseSync {
   if (dbPath !== ':memory:') {
@@ -29,6 +36,10 @@ export function createDatabase(dbPath: string = ':memory:'): DatabaseSync {
   // Ensure full schema is initialized directly from bundled TypeScript constant
   db.exec(SCHEMA_SQL);
 
+  // Safe migrations
+  try { db.exec('ALTER TABLE users ADD COLUMN password_hash TEXT;'); } catch {}
+  try { db.exec('ALTER TABLE users ADD COLUMN password_salt TEXT;'); } catch {}
+
   // Independently verify and seed every table group
   try {
     seedInitialData(db);
@@ -41,20 +52,30 @@ export function createDatabase(dbPath: string = ':memory:'): DatabaseSync {
 
 function seedInitialData(db: DatabaseSync) {
   const now = new Date().toISOString();
+  const defaultSalt = 'a1b2c3d4e5f60718';
+  const defaultHash = scryptSync('devos123', defaultSalt, 64).toString('hex');
 
   // 1. Root User
-  const userCheck = db.prepare('SELECT id FROM users WHERE id = ?').get(DEFAULT_USER_ID);
+  const userCheck = db.prepare('SELECT id, password_hash FROM users WHERE id = ?').get(DEFAULT_USER_ID) as any;
   if (!userCheck) {
     db.prepare(`
-      INSERT INTO users (id, email, name, avatar_url, timezone, created_at)
-      VALUES (?, ?, ?, ?, ?, ?)
+      INSERT INTO users (id, email, password_hash, password_salt, name, avatar_url, timezone, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `).run(
       DEFAULT_USER_ID,
       'developer@devos.local',
+      defaultHash,
+      defaultSalt,
       'Lead Engineer',
       'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&auto=format&fit=crop',
       'UTC',
       now
+    );
+  } else if (!userCheck.password_hash) {
+    db.prepare('UPDATE users SET password_hash = ?, password_salt = ? WHERE id = ?').run(
+      defaultHash,
+      defaultSalt,
+      DEFAULT_USER_ID
     );
   }
 

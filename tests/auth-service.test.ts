@@ -47,3 +47,58 @@ test('AuthService - Sign up & Sign in with Google OAuth, session validation, and
   const afterLogoutUser = auth.validateSession(signupResult.sessionToken);
   assert.equal(afterLogoutUser, null);
 });
+
+test('AuthService - Email and password signup, signin, and dynamic workspace initialization', () => {
+  const db = createDatabase(':memory:');
+  const bus = new ActivityBus(db);
+  const auth = new AuthService(db, bus);
+
+  // 1. Sign up with email and password
+  const signup = auth.signUpWithPassword({
+    email: 'grace.hopper@compiler.org',
+    password: 'supersecretpassword',
+    name: 'Grace Hopper',
+  });
+
+  assert.ok(signup.user.id.startsWith('usr_'));
+  assert.equal(signup.user.email, 'grace.hopper@compiler.org');
+  assert.equal(signup.user.name, 'Grace Hopper');
+  assert.ok(signup.sessionToken.startsWith('devos_ses_'));
+
+  // 2. Validate session
+  const validUser = auth.validateSession(signup.sessionToken);
+  assert.ok(validUser);
+  assert.equal(validUser.email, 'grace.hopper@compiler.org');
+
+  // 3. Reject duplicate signup with same email
+  assert.throws(() => {
+    auth.signUpWithPassword({
+      email: 'grace.hopper@compiler.org',
+      password: 'differentpassword',
+    });
+  }, /account with this email already exists/i);
+
+  // 4. Sign in with correct password
+  const signin = auth.signInWithPassword({
+    email: 'grace.hopper@compiler.org',
+    password: 'supersecretpassword',
+  });
+  assert.ok(signin.sessionToken);
+  assert.equal(signin.user.id, signup.user.id);
+
+  // 5. Reject sign in with incorrect password
+  assert.throws(() => {
+    auth.signInWithPassword({
+      email: 'grace.hopper@compiler.org',
+      password: 'wrongpassword',
+    });
+  }, /invalid email or password/i);
+
+  // 6. Sign in with seeded default developer user
+  const devSignin = auth.signInWithPassword({
+    email: 'developer@devos.local',
+    password: 'devos123',
+  });
+  assert.ok(devSignin.sessionToken);
+  assert.equal(devSignin.user.name, 'Lead Engineer');
+});

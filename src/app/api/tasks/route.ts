@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { taskService } from '@/lib/services';
-import { DEFAULT_USER_ID } from '@/db/client';
+import { resolveUserId } from '@/lib/auth-helper';
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -8,14 +8,16 @@ export async function GET(request: Request) {
   const status = (searchParams.get('status') as any) || undefined;
   const priority = (searchParams.get('priority') as any) || undefined;
 
-  const tasks = taskService.getTasks(DEFAULT_USER_ID, { projectId, status, priority });
+  const userId = await resolveUserId(request);
+  const tasks = taskService.getTasks(userId, { projectId, status, priority });
   return NextResponse.json({ success: true, data: tasks });
 }
 
 export async function POST(request: Request) {
   const body = await request.json();
+  const userId = await resolveUserId(request);
   const task = taskService.createTask({
-    userId: DEFAULT_USER_ID,
+    userId,
     title: body.title,
     description: body.description,
     projectId: body.projectId,
